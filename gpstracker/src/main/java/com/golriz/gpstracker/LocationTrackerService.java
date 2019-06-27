@@ -3,6 +3,9 @@ package com.golriz.gpstracker;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
+import android.location.LocationListener;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 import androidx.annotation.Nullable;
@@ -12,7 +15,7 @@ import java.util.TimerTask;
 
 import static android.content.ContentValues.TAG;
 
-public class LocationTrackerService extends Service {
+public class LocationTrackerService extends Service implements LocationListener {
     public int counter = 0;
     Context context;
     public static boolean stopTime = false;
@@ -95,5 +98,25 @@ public class LocationTrackerService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+    }
+
+    @Override
+    public void onStatusChanged(String s, int i, Bundle bundle) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String s) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String s) {
+
     }
 }
