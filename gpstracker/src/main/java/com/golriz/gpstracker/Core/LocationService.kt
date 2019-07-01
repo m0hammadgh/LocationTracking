@@ -1,4 +1,4 @@
-package com.golriz.gpspointer.Config
+package com.golriz.gpstracker.Core
 
 import android.app.Service
 import android.content.Context
@@ -7,27 +7,28 @@ import android.location.Location
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
-import com.golriz.gpspointer.Config.SettingsLocationTracker.ACTION_CURRENT_LOCATION_BROADCAST
+import com.golriz.gpstracker.Core.SettingsLocationTracker.ACTION_CURRENT_LOCATION_BROADCAST
+import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Action
+import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Gps
+import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Internet
+import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Location_Interval
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationListener
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 
-/**
- * @author Mohammad
- */
 class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
     LocationListener {
 
+    protected lateinit var mGoogleApiClient: GoogleApiClient
 
-    protected var mGoogleApiClient: GoogleApiClient? = null
-
-    protected var mLocationRequest: LocationRequest? = null
+    protected lateinit var mLocationRequest: LocationRequest
 
     protected var mCurrentLocation: Location? = null
 
     protected var interval: Long = 0
+
 
     protected var actionReceiver: String? = null
 
@@ -45,25 +46,25 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
 
         if (this.actionReceiver == null) {
-            this.actionReceiver = this.appPreferences!!.getString("ACTION", "LOCATION.ACTION")
+            this.actionReceiver = this.appPreferences!!.getString(Pref_Action, "LOCATION.ACTION")
         }
 
         if (this.interval <= 0) {
-            this.interval = this.appPreferences!!.getLong("LOCATION_INTERVAL", 10000L)!!
+            this.interval = this.appPreferences!!.getLong(Pref_Location_Interval, 10000L)!!
         }
 
         if (this.gps == null) {
-            this.gps = this.appPreferences!!.getBoolean("GPS", true)
+            this.gps = this.appPreferences!!.getBoolean(Pref_Gps, true)
         }
 
         if (this.netWork == null) {
-            this.netWork = this.appPreferences!!.getBoolean("NETWORK", false)
+            this.netWork = this.appPreferences!!.getBoolean(Pref_Internet, false)
         }
 
         buildGoogleApiClient()
 
-        mGoogleApiClient?.connect()
-        if (mGoogleApiClient?.isConnected!!) {
+        mGoogleApiClient.connect()
+        if (mGoogleApiClient.isConnected) {
             startLocationUpdates()
         }
         return Service.START_STICKY
@@ -82,18 +83,18 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
 
     protected fun createLocationRequest() {
         mLocationRequest = LocationRequest()
-        mLocationRequest!!.interval = this.interval
-        mLocationRequest!!.fastestInterval = this.interval / 2
+        mLocationRequest.interval = this.interval
+        mLocationRequest.fastestInterval = this.interval / 2
         if (this.gps!!) {
-            mLocationRequest!!.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+            mLocationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         } else if (this.netWork!!) {
-            mLocationRequest!!.priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
+            mLocationRequest.priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
         }
     }
 
     protected fun startLocationUpdates() {
         try {
-            if (mGoogleApiClient?.isConnected!!) {
+            if (mGoogleApiClient.isConnected) {
                 LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this)
             }
         } catch (ex: SecurityException) {
@@ -105,10 +106,10 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
         if (null != mCurrentLocation) {
             sendLocationBroadcast(this.mCurrentLocation!!)
             sendCurrentLocationBroadCast(this.mCurrentLocation!!)
-            Log.d("Info: ", "ersal broadcast location data")
+            Log.d("Info: ", "send broadcast location data")
         } else {
             sendPermissionDeinedBroadCast()
-            Log.d("Error: ", "Permission rad shod @!")
+            Log.d("Error: ", "Permission dastrasi nadarad")
         }
     }
 
@@ -133,23 +134,20 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
     }
 
     protected fun stopLocationUpdates() {
-        if (mGoogleApiClient?.isConnected!!) {
+        if (mGoogleApiClient.isConnected) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this)
         }
     }
 
     override fun onDestroy() {
         stopLocationUpdates()
-        mGoogleApiClient?.disconnect()
+        mGoogleApiClient.disconnect()
         super.onDestroy()
-
-        val broadcastIntent = Intent("service.locationTracker.stopped")
-        sendBroadcast(broadcastIntent)
     }
 
     @Throws(SecurityException::class)
     override fun onConnected(connectionHint: Bundle?) {
-        Log.i(TAG, "be Google Api client vasl shod")
+        Log.i(TAG, "Connected to GoogleApiClient")
         if (mCurrentLocation == null) {
             mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient)
             updateService()
@@ -163,7 +161,7 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
     }
 
     override fun onConnectionSuspended(cause: Int) {
-        mGoogleApiClient?.connect()
+        mGoogleApiClient.connect()
     }
 
     override fun onConnectionFailed(result: ConnectionResult) {
@@ -171,13 +169,12 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
     }
 
     override fun onBind(intent: Intent): IBinder? {
-        throw UnsupportedOperationException("Failedddd")
+        throw UnsupportedOperationException("hanooz implement nashode")
     }
 
     companion object {
 
         private val TAG = LocationService::class.java.simpleName
-        var stopTime = false
 
         fun isRunning(context: Context): Boolean {
             return AppUtils.isServiceRunning(context, LocationService::class.java)

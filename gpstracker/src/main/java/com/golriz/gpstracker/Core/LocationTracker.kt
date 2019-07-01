@@ -1,63 +1,41 @@
-package com.golriz.gpspointer.Config
+package com.golriz.gpstracker.Core
 
 import android.Manifest
-import android.app.Activity
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.PackageManager
+import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.github.kayvannj.permission_utils.Func2
 import com.github.kayvannj.permission_utils.PermissionUtil
-
+import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Action
+import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Gps
+import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Internet
+import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Location_Interval
 import java.io.Serializable
 
+
 class LocationTracker(
-    /**
-     * name  action to send gps data
-     * for  broadcast receiver
-     */
-    private val actionReceiver: String, mainActivity: Activity?
+
+        private val actionReceiver: String
 ) : Serializable {
 
-    /**
-     * ask permissions
-     */
     private var mBothPermissionRequest: PermissionUtil.PermissionRequestObject? = null
 
-    /**
-     * interval to send gps data
-     */
     private var interval: Long = 0
-    private var distanceFromLastLocation: Long = 0
-    private var syncToServerInterval: Long = 0
-    private var numberOfRecordsToSync = 10
 
-    /**
-     * use gps provider
-     */
     private var gps: Boolean? = null
 
-    /**
-     * use network provider
-     */
     private var netWork: Boolean? = null
 
-    /**
-     * broadcast to get current location
-     */
+    private var syncInterval: Long = 10 //Default is 10
+    private var distance: Int = 0 // The distance  between last Location and the previous one  in Meter
+    private var syncCount: Int = 0 // Number of records which will be synced to server in the desired interval
+
     private var currentLocationReceiver: BroadcastReceiver? = null
-
-    init {
-        if (mainActivity != null) {
-            val permissionChecker = PermissionChecker(mainActivity)
-            permissionChecker.checkPermission()
-        }
-
-    }
 
 
     fun currentLocation(currentLocationReceiver: BroadcastReceiver): LocationTracker {
@@ -80,18 +58,18 @@ class LocationTracker(
         return this
     }
 
-    fun setsyncInterval(syncInterval: Long?): LocationTracker {
-        this.syncToServerInterval = syncInterval!!
+    fun setSyncInterval(time: Long): LocationTracker {
+        this.syncInterval = time
         return this
     }
 
-    fun setNumberOfRecordToSync(syncCountRecords: Int): LocationTracker {
-        this.numberOfRecordsToSync = syncCountRecords
+    fun setDistance(distance: Int): LocationTracker {
+        this.distance = distance
         return this
     }
 
-    fun setdistanceFromLastLocation(distanceFromLastLocation: Long?): LocationTracker {
-        this.distanceFromLastLocation = distanceFromLastLocation!!
+    fun setSyncCount(count: Int): LocationTracker {
+        this.syncCount = count
         return this
     }
 
@@ -122,7 +100,16 @@ class LocationTracker(
         val serviceIntent = Intent(context, LocationService::class.java)
         saveSettingsInLocalStorage(context)
         context.startService(serviceIntent)
+
     }
+
+    fun isServiceRunning(context: Context): Boolean {
+
+        if (LocationService.isRunning(context))
+            return true
+        return false
+    }
+
 
     fun stopLocationService(context: Context) {
         if (LocationService.isRunning(context)) {
@@ -136,34 +123,36 @@ class LocationTracker(
         }
     }
 
-    fun validatePermissions(context: Context, appCompatActivity: AppCompatActivity) {
+    fun validatePermissions(context: Context, appCompatActivity: AppCompatActivity): Boolean {
         if (AppUtils.hasM() && !(ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED)
+                        context,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PERMISSION_GRANTED)
         ) {
             askPermissions(context, appCompatActivity)
+            return false
         } else {
             startLocationService(context)
+            return true
         }
     }
 
     fun askPermissions(context: Context, appCompatActivity: AppCompatActivity) {
         mBothPermissionRequest = PermissionUtil.with(appCompatActivity)
-            .request(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION).onResult(
-            object : Func2() {
-                override fun call(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-                    if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                        startLocationService(context)
-                    } else {
-                        Toast.makeText(context, "Permission Deined", Toast.LENGTH_LONG).show()
-                    }
-                }
+                .request(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION).onResult(
+                        object : Func2() {
+                            override fun call(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+                                if (grantResults[0] == PERMISSION_GRANTED && grantResults[1] == PERMISSION_GRANTED) {
+                                    startLocationService(context)
+                                } else {
+                                    Toast.makeText(context, "Permission Deined", Toast.LENGTH_LONG).show()
+                                }
+                            }
 
-            }).ask(SettingsLocationTracker.PERMISSION_ACCESS_LOCATION_CODE)
+                        }).ask(SettingsLocationTracker.PERMISSION_ACCESS_LOCATION_CODE)
     }
 
     fun onRequestPermission(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
@@ -175,11 +164,12 @@ class LocationTracker(
     fun saveSettingsInLocalStorage(context: Context) {
         val appPreferences = AppPreferences(context)
         if (this.interval != 0L) {
-            appPreferences.putLong("LOCATION_INTERVAL", this.interval)
+            appPreferences.putLong(Pref_Location_Interval, this.interval)
         }
-        appPreferences.putString("ACTION", this.actionReceiver)
-        appPreferences.putBoolean("GPS", this.gps)
-        appPreferences.putBoolean("NETWORK", this.netWork)
+        appPreferences.putString(Pref_Action, this.actionReceiver)
+        appPreferences.putBoolean(Pref_Gps, this.gps)
+        appPreferences.putBoolean(Pref_Internet, this.netWork)
     }
+
 
 }

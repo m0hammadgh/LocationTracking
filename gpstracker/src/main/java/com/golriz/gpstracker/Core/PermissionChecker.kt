@@ -15,15 +15,7 @@ class PermissionChecker(private val context: Activity) {
         //  CHECK FOR LOCATION PERMISSION
         internal fun checkPermission(activity: Activity): Boolean {
             val result = ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION)
-            return if (result == PackageManager.PERMISSION_GRANTED) {
-
-                true
-
-            } else {
-
-                false
-
-            }
+            return result == PackageManager.PERMISSION_GRANTED
         }
 
 

@@ -1,12 +1,9 @@
-package com.golriz.gpspointer.Config
+package com.golriz.gpstracker.Core
 
 import android.content.Context
 import android.content.SharedPreferences
 import android.preference.PreferenceManager
 
-/**
- * @author Mohammad
- */
 class AppPreferences(context: Context) {
 
     private val sharedPreferences: SharedPreferences

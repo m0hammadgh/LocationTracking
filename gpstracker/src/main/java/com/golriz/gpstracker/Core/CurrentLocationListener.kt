@@ -1,10 +1,8 @@
-package com.golriz.gpspointer.Config
+package com.golriz.gpstracker.Core
 
 import android.location.Location
 
-/**
- * @author Mohammad
- */
+
 interface CurrentLocationListener {
 
     /**
