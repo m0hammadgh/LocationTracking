@@ -1,14 +1,16 @@
 package com.golriz.locationtracker
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import com.golriz.gpstracker.Core.LocationTracker
 import com.golriz.gpstracker.Core.SettingsLocationTracker.PERMISSION_ACCESS_LOCATION_CODE
 import com.golriz.gpstracker.DB.repository.UserLocationRepository
 import com.golriz.gpstracker.Models.UserLocation
 import kotlinx.android.synthetic.main.activity_main.*
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -35,9 +37,16 @@ class MainActivity : AppCompatActivity() {
             userloation.latitude = 17.5656
             userloation.longtitude = 15.3666
             userloation.time = 145478754L
+            UserLocationRepository(this).insertLocation(userloation)
+            var live: LiveData<List<UserLocation>> = UserLocationRepository(this).unSyncedLocations
 
-            var userLocationRepo = UserLocationRepository(this).unSyncedLocations
-            Toast.makeText(baseContext, "dss", Toast.LENGTH_LONG).show()
+            UserLocationRepository(this).unSyncedLocations.observe(this,
+                Observer<List<UserLocation>> { locations ->
+                    if (locations.isNotEmpty()) {
+
+                    }
+                })
+
 
         }
 

@@ -5,7 +5,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import androidx.lifecycle.LiveData;
 import androidx.room.Room;
-import com.golriz.gpstracker.DB.db.UserLocationRoomDB;
+import com.golriz.gpstracker.DB.db.DataBase;
 import com.golriz.gpstracker.Models.UserLocation;
 
 import java.util.ArrayList;
@@ -15,10 +15,10 @@ public class UserLocationRepository {
 
     private String DB_NAME = "userLocation_db";
 
-    private UserLocationRoomDB noteDatabase;
+    private DataBase noteDatabase;
 
     public UserLocationRepository(Context context) {
-        noteDatabase = Room.databaseBuilder(context, UserLocationRoomDB.class, DB_NAME).build();
+        noteDatabase = Room.databaseBuilder(context, DataBase.class, DB_NAME).build();
     }
 
     @SuppressLint("StaticFieldLeak")
@@ -32,7 +32,6 @@ public class UserLocationRepository {
             }
         }.execute();
     }
-
 
 
     @SuppressLint("StaticFieldLeak")
