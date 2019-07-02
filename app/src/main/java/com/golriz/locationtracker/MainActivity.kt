@@ -3,12 +3,11 @@ package com.golriz.locationtracker
 import android.os.Bundle
 import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import com.golriz.gpstracker.Core.LocationTracker
 import com.golriz.gpstracker.Core.SettingsLocationTracker.PERMISSION_ACCESS_LOCATION_CODE
-import com.golriz.gpstracker.DB.repository.UserLocationRepository
-import com.golriz.gpstracker.Models.UserLocation
+import com.golriz.gpstracker.DB.model.UserCurrentLocation
+import com.golriz.gpstracker.DB.repository.NoteRepository
 import kotlinx.android.synthetic.main.activity_main.*
 
 
@@ -31,22 +30,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnStart.setOnClickListener {
-            //            locationTracker?.stopLocationService(this)
-            val userloation: UserLocation = UserLocation()
-            userloation.isSynced = false
-            userloation.latitude = 17.5656
-            userloation.longtitude = 15.3666
-            userloation.time = 145478754L
-            UserLocationRepository(this).insertLocation(userloation)
-            var live: LiveData<List<UserLocation>> = UserLocationRepository(this).unSyncedLocations
-
-            UserLocationRepository(this).unSyncedLocations.observe(this,
-                Observer<List<UserLocation>> { locations ->
-                    if (locations.isNotEmpty()) {
-
-                    }
-                })
-
 
         }
 
@@ -59,6 +42,24 @@ class MainActivity : AppCompatActivity() {
             .setGps(true)
             .setDistance(50)
             .setNetWork(true)
+    }
+
+
+    private fun stopService() {
+        locationTracker?.stopLocationService(this)
+    }
+
+    private fun addDataToDB() {
+        NoteRepository(this).insertTask(123.565, 15.6663)
+    }
+
+    private fun getLocationList() {
+        NoteRepository(this).tasks.observe(this,
+            Observer<List<UserCurrentLocation>> { locations ->
+                if (locations.isNotEmpty()) {
+
+                }
+            })
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, @NonNull permissions: Array<String>, @NonNull grantResults: IntArray) {

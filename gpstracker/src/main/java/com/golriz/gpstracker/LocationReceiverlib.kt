@@ -1,4 +1,4 @@
-package com.golriz.gpstracker.Models
+package com.golriz.gpstracker
 
 import android.content.BroadcastReceiver
 import android.content.Context
