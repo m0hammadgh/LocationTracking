@@ -1,6 +1,5 @@
 package com.golriz.gpstracker.Models
 
-import android.location.Location
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -12,8 +11,11 @@ class UserLocation {
     @ColumnInfo(name = "id")
     var uid: Int = 0
 
-    @ColumnInfo(name = "location")
-    var location: Location? = null
+    @ColumnInfo(name = "latitude")
+    var latitude: Double? = null
+    @ColumnInfo(name = "longtitude")
+    var longtitude: Double? = null
+
 
     @ColumnInfo(name = "isSynced")
     var isSynced: Boolean = false

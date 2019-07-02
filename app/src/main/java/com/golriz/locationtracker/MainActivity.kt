@@ -1,12 +1,13 @@
 package com.golriz.locationtracker
 
-import android.location.Location
 import android.os.Bundle
+import android.widget.Toast
 import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
 import com.golriz.gpstracker.Core.LocationTracker
 import com.golriz.gpstracker.Core.SettingsLocationTracker.PERMISSION_ACCESS_LOCATION_CODE
 import com.golriz.gpstracker.DB.repository.UserLocationRepository
+import com.golriz.gpstracker.Models.UserLocation
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -29,11 +30,14 @@ class MainActivity : AppCompatActivity() {
 
         btnStart.setOnClickListener {
             //            locationTracker?.stopLocationService(this)
-            var location: Location? = null
-            location?.altitude = 10.2220
-            location?.longitude = 25.5878
+            val userloation: UserLocation = UserLocation()
+            userloation.isSynced = false
+            userloation.latitude = 17.5656
+            userloation.longtitude = 15.3666
+            userloation.time = 145478754L
 
-            var userLocationRepo = UserLocationRepository(this).insertLocation(location)
+            var userLocationRepo = UserLocationRepository(this).unSyncedLocations
+            Toast.makeText(baseContext, "dss", Toast.LENGTH_LONG).show()
 
         }
 

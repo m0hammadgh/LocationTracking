@@ -2,7 +2,6 @@ package com.golriz.gpstracker.DB.repository;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.location.Location;
 import android.os.AsyncTask;
 import androidx.lifecycle.LiveData;
 import androidx.room.Room;
@@ -22,18 +21,8 @@ public class UserLocationRepository {
         noteDatabase = Room.databaseBuilder(context, UserLocationRoomDB.class, DB_NAME).build();
     }
 
-
-    public void insertLocation(Location location) {
-        UserLocation userLocation = new UserLocation();
-        userLocation.setLocation(location);
-        userLocation.setSynced(false);
-        Long tsLong = System.currentTimeMillis() / 1000;
-        userLocation.setTime(tsLong);
-        insertLocation(userLocation);
-    }
-
-
     @SuppressLint("StaticFieldLeak")
+
     public void insertLocation(final UserLocation location) {
         new AsyncTask<Void, Void, Void>() {
             @Override
@@ -43,6 +32,8 @@ public class UserLocationRepository {
             }
         }.execute();
     }
+
+
 
     @SuppressLint("StaticFieldLeak")
     public void updateSyncedLocation(final ArrayList<UserLocation> userLocations) {
