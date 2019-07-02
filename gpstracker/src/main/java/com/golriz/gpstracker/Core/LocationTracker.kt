@@ -20,7 +20,7 @@ import java.io.Serializable
 
 class LocationTracker(
 
-        private val actionReceiver: String
+    private val actionReceiver: String
 ) : Serializable {
 
     private var mBothPermissionRequest: PermissionUtil.PermissionRequestObject? = null
@@ -31,10 +31,10 @@ class LocationTracker(
 
     private var netWork: Boolean? = null
 
-    private var syncInterval: Long = 10 //Default is 10
-    private var distance: Int = 0 // The distance  between last Location and the previous one  in Meter
-    private var syncCount: Int = 0 // Number of records which will be synced to server in the desired interval
-
+    private var syncInterval: Long = 10000 //Default is 10
+    private var distance: Int = 5 // The distance  between last Location and the previous one  in Meter
+    private var syncCount: Int = 10 // Number of records which will be synced to server in the desired interval
+    private var storeToDataBase: Boolean = true
     private var currentLocationReceiver: BroadcastReceiver? = null
 
 
@@ -73,6 +73,12 @@ class LocationTracker(
         return this
     }
 
+    fun setStoreToDataBase(status: Boolean): LocationTracker {
+        this.storeToDataBase = status
+        return this
+    }
+
+
     fun start(context: Context, appCompatActivity: AppCompatActivity): LocationTracker {
         validatePermissions(context, appCompatActivity)
 
@@ -105,9 +111,15 @@ class LocationTracker(
 
     fun isServiceRunning(context: Context): Boolean {
 
-        if (LocationService.isRunning(context))
-            return true
+        if (LocationService.isRunning(context)) {
+
+            if (currentLocationReceiver != null) {
+                return true
+            }
+
+        }
         return false
+
     }
 
 
@@ -125,12 +137,12 @@ class LocationTracker(
 
     fun validatePermissions(context: Context, appCompatActivity: AppCompatActivity): Boolean {
         if (AppUtils.hasM() && !(ContextCompat.checkSelfPermission(
-                        context,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
-                ) == PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
-                        context,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                ) == PERMISSION_GRANTED)
+                context,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PERMISSION_GRANTED)
         ) {
             askPermissions(context, appCompatActivity)
             return false
@@ -142,17 +154,17 @@ class LocationTracker(
 
     fun askPermissions(context: Context, appCompatActivity: AppCompatActivity) {
         mBothPermissionRequest = PermissionUtil.with(appCompatActivity)
-                .request(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION).onResult(
-                        object : Func2() {
-                            override fun call(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-                                if (grantResults[0] == PERMISSION_GRANTED && grantResults[1] == PERMISSION_GRANTED) {
-                                    startLocationService(context)
-                                } else {
-                                    Toast.makeText(context, "Permission Deined", Toast.LENGTH_LONG).show()
-                                }
-                            }
+            .request(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION).onResult(
+                object : Func2() {
+                    override fun call(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+                        if (grantResults[0] == PERMISSION_GRANTED && grantResults[1] == PERMISSION_GRANTED) {
+                            startLocationService(context)
+                        } else {
+                            Toast.makeText(context, "Permission Deined", Toast.LENGTH_LONG).show()
+                        }
+                    }
 
-                        }).ask(SettingsLocationTracker.PERMISSION_ACCESS_LOCATION_CODE)
+                }).ask(SettingsLocationTracker.PERMISSION_ACCESS_LOCATION_CODE)
     }
 
     fun onRequestPermission(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {

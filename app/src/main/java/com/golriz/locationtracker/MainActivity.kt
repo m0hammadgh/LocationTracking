@@ -1,10 +1,12 @@
 package com.golriz.locationtracker
 
+import android.location.Location
 import android.os.Bundle
 import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
 import com.golriz.gpstracker.Core.LocationTracker
 import com.golriz.gpstracker.Core.SettingsLocationTracker.PERMISSION_ACCESS_LOCATION_CODE
+import com.golriz.gpstracker.DB.repository.UserLocationRepository
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -26,7 +28,13 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnStart.setOnClickListener {
-            locationTracker?.stopLocationService(this)
+            //            locationTracker?.stopLocationService(this)
+            var location: Location? = null
+            location?.altitude = 10.2220
+            location?.longitude = 25.5878
+
+            var userLocationRepo = UserLocationRepository(this).insertLocation(location)
+
         }
 
     }
@@ -34,10 +42,10 @@ class MainActivity : AppCompatActivity() {
     private fun init() {
 
         locationTracker = LocationTracker("my.action.mohammad")
-                .setInterval(5000)
-                .setGps(true)
-                .setDistance(50)
-                .setNetWork(true)
+            .setInterval(5000)
+            .setGps(true)
+            .setDistance(50)
+            .setNetWork(true)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, @NonNull permissions: Array<String>, @NonNull grantResults: IntArray) {

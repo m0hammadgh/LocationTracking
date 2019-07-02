@@ -9,6 +9,7 @@ import androidx.room.PrimaryKey
 class UserLocation {
 
     @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = "id")
     var uid: Int = 0
 
     @ColumnInfo(name = "location")
