@@ -7,7 +7,7 @@ import com.golriz.gpstracker.DB.model.UserCurrentLocation
 
 
 @Database(entities = [UserCurrentLocation::class], version = 1, exportSchema = false)
-abstract class NoteDatabase : RoomDatabase() {
+abstract class UserDatabase : RoomDatabase() {
 
     abstract fun daoAccess(): UserLocationDao
 }

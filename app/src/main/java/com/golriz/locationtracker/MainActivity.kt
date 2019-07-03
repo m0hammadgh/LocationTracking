@@ -10,7 +10,7 @@ import com.golriz.gpstracker.Core.CalculateLocationDistance
 import com.golriz.gpstracker.Core.LocationTracker
 import com.golriz.gpstracker.Core.SettingsLocationTracker.PERMISSION_ACCESS_LOCATION_CODE
 import com.golriz.gpstracker.DB.model.UserCurrentLocation
-import com.golriz.gpstracker.DB.repository.NoteRepository
+import com.golriz.gpstracker.DB.repository.RoomRepository
 import kotlinx.android.synthetic.main.activity_main.*
 
 
@@ -21,7 +21,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         init()
-        Toast.makeText(this, "${calcutePoints()}", Toast.LENGTH_LONG).show()
+
+
         btnStop.setOnClickListener {
 
 
@@ -34,7 +35,16 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnStart.setOnClickListener {
+            stopService()
+        }
 
+        insertData.setOnClickListener {
+            addDataToDB()
+        }
+
+        getsize.setOnClickListener {
+
+            getLocationList()
         }
 
     }
@@ -54,15 +64,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addDataToDB() {
-        NoteRepository(this).insertTask(123.565, 15.6663)
+        RoomRepository(this).insertTask(123.565, 15.6663)
     }
 
     private fun getLocationList() {
-        NoteRepository(this).tasks.observe(this,
-            Observer<List<UserCurrentLocation>> { locations ->
-                if (locations.isNotEmpty()) {
 
-                }
+        RoomRepository(this).tasks.observe(
+            this,
+            Observer<List<UserCurrentLocation>> { locations ->
+                Toast.makeText(this, "${locations.size}", Toast.LENGTH_LONG).show()
+            })
+    }
+
+    private fun getLastInsertedItem() {
+        RoomRepository(this).getLasSubmittedRecord().observe(this,
+            Observer<UserCurrentLocation> { lastItem ->
+                Toast.makeText(this, "$lastItem?.id ${lastItem?.isSynced}", Toast.LENGTH_LONG).show()
+
+
             })
     }
 
