@@ -21,6 +21,8 @@ class LocationReceiverlib : BroadcastReceiver() {
                     "Location from lib: ",
                     "Latitude****: " + locationData?.latitude + "Longitude:" + locationData?.longitude
             )
+
+            // یه چیز منطقی 
         }
     }
 
