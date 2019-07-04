@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat
 import com.github.kayvannj.permission_utils.Func2
 import com.github.kayvannj.permission_utils.PermissionUtil
 import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Action
+import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Action_Sync
 import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Gps
 import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Internet
 import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Last_Point_Distance
@@ -25,20 +26,19 @@ class LocationTracker(
 
     private val actionReceiver: String
 ) : Serializable {
-
     private var mBothPermissionRequest: PermissionUtil.PermissionRequestObject? = null
-
     private var interval: Long = 0
-
     private var gps: Boolean? = null
-
     private var netWork: Boolean? = null
-
     private var syncInterval: Long = 10000 //Default is 10
     private var distance: Int = 5 // The distance  between last Location and the previous one  in Meter
     private var syncCount: Int = 10 // Number of records which will be synced to server in the desired interval
     private var storeToDataBase: Boolean = true
     private var currentLocationReceiver: BroadcastReceiver? = null
+    private var sync_action: String? = null
+
+
+    /*******    *****/
 
 
     fun currentLocation(currentLocationReceiver: BroadcastReceiver): LocationTracker {
@@ -78,6 +78,11 @@ class LocationTracker(
 
     fun setStoreToDataBase(status: Boolean): LocationTracker {
         this.storeToDataBase = status
+        return this
+    }
+
+    fun setSyncAction(action: String): LocationTracker {
+        this.sync_action = action
         return this
     }
 
@@ -188,6 +193,7 @@ class LocationTracker(
         appPreferences.putInt(Pref_Last_Point_Distance, this.distance)
         appPreferences.putInt(Pref_Sync_Count, this.syncCount)
         appPreferences.putLong(Pref_Sync_Time, this.syncInterval)
+        appPreferences.putString(Pref_Action_Sync, this.sync_action!!)
 
 
     }

@@ -13,6 +13,7 @@ object SettingsLocationTracker {
 
 
     var Pref_Action = "ACTION"
+    var Pref_Action_Sync = "Action_Sync"
     var Pref_Location_Interval = "LOCATION_INTERVAL"
     var Pref_Last_Point_Distance = "LOCATION_Distance"
     var Pref_Sync_Time = "Sync_INTERVAL"

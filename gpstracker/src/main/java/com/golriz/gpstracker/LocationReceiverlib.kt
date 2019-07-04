@@ -18,7 +18,7 @@ class LocationReceiverlib : BroadcastReceiver() {
         if (null != intent && intent.action == "my.action.mohammad") {
             val locationData =
                 intent.getParcelableExtra<Parcelable>(SettingsLocationTracker.LOCATION_MESSAGE) as Location?
-
+            Log.d("Location: ", "Latitude: " + locationData?.latitude + "Longitude:" + locationData?.longitude)
             calculateDistance(locationData!!.latitude, locationData.longitude, context)
             //RoomRepository(context).insertTask(locationData.latitude, locationData.longitude)
 

@@ -57,6 +57,7 @@ class MainActivity : AppCompatActivity() {
             .setInterval(5000)
             .setGps(true)
             .setDistance(50)
+            .setSyncAction("action.sync")
             .setNetWork(true)
     }
 
