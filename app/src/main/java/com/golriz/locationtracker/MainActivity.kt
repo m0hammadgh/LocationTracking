@@ -44,7 +44,9 @@ class MainActivity : AppCompatActivity() {
 
         getsize.setOnClickListener {
 
-            getLocationList()
+            Toast.makeText(this, "${RoomRepository(this).getLasSubmittedItem().latitude}", Toast.LENGTH_LONG).show()
+//            getLocationList()
+//            getLastInsertedItem()
         }
 
     }
@@ -79,7 +81,7 @@ class MainActivity : AppCompatActivity() {
     private fun getLastInsertedItem() {
         RoomRepository(this).getLasSubmittedRecord().observe(this,
             Observer<UserCurrentLocation> { lastItem ->
-                Toast.makeText(this, "$lastItem?.id ${lastItem?.isSynced}", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "${lastItem.latitude} ${lastItem.id}", Toast.LENGTH_LONG).show()
 
 
             })

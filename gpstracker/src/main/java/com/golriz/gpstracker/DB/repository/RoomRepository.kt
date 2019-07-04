@@ -63,5 +63,17 @@ class RoomRepository(context: Context) {
         return noteDatabase.daoAccess().getLastItem()
     }
 
+    fun getLasSubmittedItem(): UserCurrentLocation {
+        return GetNotesAsyncTask().execute().get()
+
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    private inner class GetNotesAsyncTask : AsyncTask<Void, Void, UserCurrentLocation>() {
+        override fun doInBackground(vararg voids: Void): UserCurrentLocation {
+            return noteDatabase.daoAccess().findByUserId()
+        }
+    }
+
 
 }

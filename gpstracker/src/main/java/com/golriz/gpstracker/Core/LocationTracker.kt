@@ -14,7 +14,10 @@ import com.github.kayvannj.permission_utils.PermissionUtil
 import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Action
 import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Gps
 import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Internet
+import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Last_Point_Distance
 import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Location_Interval
+import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Sync_Count
+import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Sync_Time
 import java.io.Serializable
 
 
@@ -178,9 +181,15 @@ class LocationTracker(
         if (this.interval != 0L) {
             appPreferences.putLong(Pref_Location_Interval, this.interval)
         }
+
         appPreferences.putString(Pref_Action, this.actionReceiver)
         appPreferences.putBoolean(Pref_Gps, this.gps)
         appPreferences.putBoolean(Pref_Internet, this.netWork)
+        appPreferences.putInt(Pref_Last_Point_Distance, this.distance)
+        appPreferences.putInt(Pref_Sync_Count, this.syncCount)
+        appPreferences.putLong(Pref_Sync_Time, this.syncInterval)
+
+
     }
 
 
