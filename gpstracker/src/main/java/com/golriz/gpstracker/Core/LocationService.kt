@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.location.Location
 import android.os.Bundle
+import android.os.Handler
 import android.os.IBinder
 import android.util.Log
 import com.golriz.gpstracker.BroadCast.Events
@@ -20,26 +21,26 @@ import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationListener
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
 
 class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
     LocationListener {
 
-    protected lateinit var mGoogleApiClient: GoogleApiClient
+    private lateinit var mGoogleApiClient: GoogleApiClient
 
-    protected lateinit var mLocationRequest: LocationRequest
+    private lateinit var mLocationRequest: LocationRequest
 
-    protected var mCurrentLocation: Location? = null
+    private var mCurrentLocation: Location? = null
 
-    protected var interval: Long = 0
+    private var interval: Long = 0
+    private var syncItemCount: Int = 0
 
+    internal var handler = Handler()
+    internal var delay: Long? = 0
+    private var actionReceiver: String? = null
 
-    protected var actionReceiver: String? = null
+    private var gps: Boolean? = null
 
-    protected var gps: Boolean? = null
-
-    protected var netWork: Boolean? = null
+    private var netWork: Boolean? = null
 
     private var appPreferences: AppPreferences? = null
 
@@ -47,7 +48,6 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
         super.onCreate()
         appPreferences = AppPreferences(baseContext)
 
-        GlobalBus.bus?.register(this)
 
     }
 
@@ -56,6 +56,10 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
         if (this.actionReceiver == null) {
             this.actionReceiver = this.appPreferences!!.getString(Pref_Action, "LOCATION.ACTION")
         }
+
+        this.delay = this.appPreferences!!.getLong(SettingsLocationTracker.Pref_Sync_Time, 6000)
+
+        this.syncItemCount = this.appPreferences!!.getInt(SettingsLocationTracker.Pref_Sync_Count, 10)!!
 
         if (this.interval <= 0) {
             this.interval = this.appPreferences!!.getLong(Pref_Location_Interval, 10000L)!!
@@ -75,6 +79,9 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
         if (mGoogleApiClient.isConnected) {
             startLocationUpdates()
         }
+
+        calculateSyncInterval()
+
         return Service.START_STICKY
     }
 
@@ -137,8 +144,6 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
         sendBroadcast(locationIntent)
 
 
-        val activityFragmentMessageEvent = Events.ActivityFragmentMessage(sbLocationData)
-        GlobalBus.bus?.post(activityFragmentMessageEvent)
     }
 
     private fun sendPermissionDeinedBroadCast() {
@@ -195,12 +200,23 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
         }
     }
 
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    fun getMessage(fragmentActivityMessage: Events.ActivityFragmentMessage) {
-//        val location = fragmentActivityMessage.location
-//        calculateDistance(location!!.latitude, location.longitude, baseContext)
+//    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+//    fun getMessage(fragmentActivityMessage: Events.ActivityFragmentMessage) {
+////        val location = fragmentActivityMessage.location
+////        calculateDistance(location!!.latitude, location.longitude, baseContext)
+//
+//
+//    }
 
-
+    private fun calculateSyncInterval() {
+        handler.postDelayed(object : Runnable {
+            override fun run() {
+                val locations = RoomRepository(baseContext).getUnSyncedLocations(syncItemCount)
+                val activityFragmentMessageEvent = Events.SendLocation(locations)
+                GlobalBus.bus?.post(activityFragmentMessageEvent)
+                handler.postDelayed(this, delay!!)
+            }
+        }, delay!!)
     }
 
     private fun calculateDistance(latitude: Double, longitude: Double, context: Context) {

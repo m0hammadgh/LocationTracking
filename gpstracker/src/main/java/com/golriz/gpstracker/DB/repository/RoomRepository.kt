@@ -5,14 +5,17 @@ import android.content.Context
 import android.os.AsyncTask
 import androidx.lifecycle.LiveData
 import androidx.room.Room
+import com.golriz.gpstracker.Core.AppPreferences
+import com.golriz.gpstracker.Core.SettingsLocationTracker
 import com.golriz.gpstracker.DB.db.UserDatabase
 import com.golriz.gpstracker.DB.model.UserCurrentLocation
 
-class RoomRepository(context: Context) {
+class RoomRepository(private val context: Context) {
 
     private val DB_NAME = "db_task"
 
     private val noteDatabase: UserDatabase
+
 
     //
     //    public LiveData<UserCurrentLocation> getTask(int id) {
@@ -44,6 +47,7 @@ class RoomRepository(context: Context) {
         insertTask(note)
     }
 
+
     @SuppressLint("StaticFieldLeak")
     fun insertTask(note: UserCurrentLocation) {
         object : AsyncTask<Void, Void, Void>() {
@@ -54,16 +58,17 @@ class RoomRepository(context: Context) {
         }.execute()
     }
 
-    fun getUnSyncedLocations(count: Int) {
-        val tasks: LiveData<List<UserCurrentLocation>>
-        noteDatabase.daoAccess().selectNumberOfLocations(false, count)
+    fun getUnSyncedLocations(count: Int): List<UserCurrentLocation> {
+        return GetUnSyncedLocations().execute().get()
     }
 
     fun getLasSubmittedRecord(): LiveData<UserCurrentLocation> {
+        checkPrePopulation()
         return noteDatabase.daoAccess().getLastItem()
     }
 
     fun getLasSubmittedItem(): UserCurrentLocation {
+        checkPrePopulation()
         return GetNotesAsyncTask().execute().get()
 
     }
@@ -75,5 +80,22 @@ class RoomRepository(context: Context) {
         }
     }
 
+    @SuppressLint("StaticFieldLeak")
+    private inner class GetUnSyncedLocations : AsyncTask<Void, Void, List<UserCurrentLocation>>() {
+        override fun doInBackground(vararg p0: Void?): List<UserCurrentLocation> {
+            return noteDatabase.daoAccess().getUnSyncedLocation()
+        }
+
+    }
+
+
+    fun checkPrePopulation() {
+        val appPreferences = AppPreferences(context)
+        if (appPreferences.getBoolean(SettingsLocationTracker.Pref_PopulateDb, false) == false) {
+            insertTask(0.0, 0.0)
+            appPreferences.putBoolean(SettingsLocationTracker.Pref_PopulateDb, true)
+
+        }
+    }
 
 }

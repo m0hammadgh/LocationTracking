@@ -6,12 +6,16 @@ import android.widget.Toast
 import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
+import com.golriz.gpstracker.BroadCast.Events
+import com.golriz.gpstracker.BroadCast.GlobalBus
 import com.golriz.gpstracker.Core.CalculateLocationDistance
 import com.golriz.gpstracker.Core.LocationTracker
 import com.golriz.gpstracker.Core.SettingsLocationTracker.PERMISSION_ACCESS_LOCATION_CODE
 import com.golriz.gpstracker.DB.model.UserCurrentLocation
 import com.golriz.gpstracker.DB.repository.RoomRepository
 import kotlinx.android.synthetic.main.activity_main.*
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 
 
 class MainActivity : AppCompatActivity() {
@@ -39,7 +43,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         insertData.setOnClickListener {
-            addDataToDB()
+
+
         }
 
         getsize.setOnClickListener {
@@ -57,8 +62,12 @@ class MainActivity : AppCompatActivity() {
             .setInterval(5000)
             .setGps(true)
             .setDistance(50)
+            .setSyncCount(5)
+            .setSyncInterval(5000)
             .setSyncAction("action.sync")
             .setNetWork(true)
+        GlobalBus.bus?.register(this)
+
     }
 
 
@@ -97,6 +106,7 @@ class MainActivity : AppCompatActivity() {
 
         location2.latitude = 36.342126
         location2.longitude = 59.555763
+
         return CalculateLocationDistance(location1, location2).calculateDistance()
     }
 
@@ -115,5 +125,10 @@ class MainActivity : AppCompatActivity() {
         private val TAG_PERMISSION_CODE = 10052
     }
 
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    fun getMessage(fragmentActivityMessage: Events.SendLocation) {
+        val location = fragmentActivityMessage.locationList
 
+
+    }
 }

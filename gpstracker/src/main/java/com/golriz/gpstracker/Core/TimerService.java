@@ -32,6 +32,7 @@ public class TimerService extends Service {
                 handler.postDelayed(this, delay);
             }
         }, delay);
+
         return Service.START_STICKY;
     }
 

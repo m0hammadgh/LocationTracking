@@ -20,6 +20,7 @@ object SettingsLocationTracker {
     var Pref_Sync_Count = "Sync_Count"
     var Pref_Gps = "GPS"
     var Pref_Internet = "NETWORK"
+    var Pref_PopulateDb = "Populate DB"
 
     var isServiceRunning: Boolean = false
 

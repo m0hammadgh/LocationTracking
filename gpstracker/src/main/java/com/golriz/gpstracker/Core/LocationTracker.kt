@@ -6,14 +6,11 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager.PERMISSION_GRANTED
-import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.github.kayvannj.permission_utils.Func2
 import com.github.kayvannj.permission_utils.PermissionUtil
-import com.golriz.gpstracker.BroadCast.Events
-import com.golriz.gpstracker.BroadCast.GlobalBus
 import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Action
 import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Action_Sync
 import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Gps
@@ -22,25 +19,27 @@ import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Last_Point_Distan
 import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Location_Interval
 import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Sync_Count
 import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Sync_Time
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
+import com.golriz.gpstracker.DB.repository.RoomRepository
+import com.golriz.gpstracker.Enums.GpsModes
+import com.golriz.gpstracker.GpsInfo.GpsInfo
 import java.io.Serializable
 
 
 class LocationTracker(
-
     private val actionReceiver: String
+
 ) : Serializable {
     private var mBothPermissionRequest: PermissionUtil.PermissionRequestObject? = null
     private var interval: Long = 0
     private var gps: Boolean? = null
     private var netWork: Boolean? = null
-    private var syncInterval: Long = 10000 //Default is 10
+    private var syncInterval: Long = 60000 //Default is 1 Minutes
     private var distance: Int = 5 // The distance  between last Location and the previous one  in Meter
     private var syncCount: Int = 10 // Number of records which will be synced to server in the desired interval
     private var storeToDataBase: Boolean = true
     private var currentLocationReceiver: BroadcastReceiver? = null
     private var sync_action: String? = null
+
 
 
     /*******    *****/
@@ -94,6 +93,8 @@ class LocationTracker(
 
     fun start(context: Context, appCompatActivity: AppCompatActivity): LocationTracker {
         validatePermissions(context, appCompatActivity)
+        RoomRepository(context).checkPrePopulation()
+
 
         if (this.currentLocationReceiver != null) {
             val intentFilter = IntentFilter(SettingsLocationTracker.ACTION_CURRENT_LOCATION_BROADCAST)
@@ -149,7 +150,7 @@ class LocationTracker(
     }
 
     fun validatePermissions(context: Context, appCompatActivity: AppCompatActivity): Boolean {
-        if (AppUtils.hasM() && !(ContextCompat.checkSelfPermission(
+        return if (AppUtils.hasM() && !(ContextCompat.checkSelfPermission(
                 context,
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) == PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
@@ -158,10 +159,10 @@ class LocationTracker(
             ) == PERMISSION_GRANTED)
         ) {
             askPermissions(context, appCompatActivity)
-            return false
+            false
         } else {
             startLocationService(context)
-            return true
+            true
         }
     }
 
@@ -186,7 +187,7 @@ class LocationTracker(
         }
     }
 
-    fun saveSettingsInLocalStorage(context: Context) {
+    private fun saveSettingsInLocalStorage(context: Context) {
         val appPreferences = AppPreferences(context)
         if (this.interval != 0L) {
             appPreferences.putLong(Pref_Location_Interval, this.interval)
@@ -203,11 +204,10 @@ class LocationTracker(
 
     }
 
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    fun getMessage(fragmentActivityMessage: Events.ActivityFragmentMessage) {
-        GlobalBus.bus?.register(this)
-        val messageView = fragmentActivityMessage.location
-        Log.d("heeeeyy", "look like is here $messageView")
+
+    fun gpsStatus(context: Context): GpsModes {
+        val gpsInfo = GpsInfo(context)
+        return gpsInfo.currentGpsInfo()
 
     }
 

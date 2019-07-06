@@ -15,7 +15,7 @@ interface UserLocationDao {
     val allLocation: LiveData<List<UserCurrentLocation>>
 
     @Query("SELECT * FROM userLocation Where isSynced = '0'")
-    fun getUnSyncedLocation(): LiveData<List<UserCurrentLocation>>
+    fun getUnSyncedLocation(): List<UserCurrentLocation>
 
 
     @Insert
