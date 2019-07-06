@@ -7,16 +7,21 @@ import android.location.Location
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
+import com.golriz.gpstracker.BroadCast.Events
+import com.golriz.gpstracker.BroadCast.GlobalBus
 import com.golriz.gpstracker.Core.SettingsLocationTracker.ACTION_CURRENT_LOCATION_BROADCAST
 import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Action
 import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Gps
 import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Internet
 import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Location_Interval
+import com.golriz.gpstracker.DB.repository.RoomRepository
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationListener
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 
 class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
     LocationListener {
@@ -41,6 +46,9 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
     override fun onCreate() {
         super.onCreate()
         appPreferences = AppPreferences(baseContext)
+
+        GlobalBus.bus?.register(this)
+
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
@@ -104,9 +112,11 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
 
     private fun updateService() {
         if (null != mCurrentLocation) {
+            calculateDistance(this.mCurrentLocation!!.latitude, this.mCurrentLocation!!.longitude, baseContext)
+
             sendLocationBroadcast(this.mCurrentLocation!!)
             sendCurrentLocationBroadCast(this.mCurrentLocation!!)
-            Log.d("Info: ", "send broadcast location data")
+            Log.d("Info: ", "calculating distance")
         } else {
             sendPermissionDeinedBroadCast()
             Log.d("Error: ", "Permission dastrasi nadarad")
@@ -125,6 +135,10 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
         locationIntent.action = ACTION_CURRENT_LOCATION_BROADCAST
         locationIntent.putExtra(SettingsLocationTracker.LOCATION_MESSAGE, sbLocationData)
         sendBroadcast(locationIntent)
+
+
+        val activityFragmentMessageEvent = Events.ActivityFragmentMessage(sbLocationData)
+        GlobalBus.bus?.post(activityFragmentMessageEvent)
     }
 
     private fun sendPermissionDeinedBroadCast() {
@@ -179,6 +193,38 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
         fun isRunning(context: Context): Boolean {
             return AppUtils.isServiceRunning(context, LocationService::class.java)
         }
+    }
+
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    fun getMessage(fragmentActivityMessage: Events.ActivityFragmentMessage) {
+//        val location = fragmentActivityMessage.location
+//        calculateDistance(location!!.latitude, location.longitude, baseContext)
+
+
+    }
+
+    private fun calculateDistance(latitude: Double, longitude: Double, context: Context) {
+        val lastItem = RoomRepository(context).getLasSubmittedItem()
+        val currentPoint = Location("current User Point")
+        currentPoint.latitude = latitude
+        currentPoint.longitude = longitude
+        val lastInsertedPoint = Location("Last Inserted Point")
+        lastInsertedPoint.longitude = lastItem.longtitude!!
+        lastInsertedPoint.latitude = lastItem.latitude!!
+        val distance = CalculateLocationDistance(currentPoint, lastInsertedPoint).calculateDistance()
+        val desiredDistance = AppPreferences(context).getInt(SettingsLocationTracker.Pref_Last_Point_Distance, 0)
+        if (distance > desiredDistance!!) {
+            Log.d("distance", "distance is bigger")
+            insertToDB(context, latitude, longitude)
+        } else {
+            Log.d("distance", "distance is not bigger")
+        }
+
+
+    }
+
+    private fun insertToDB(context: Context, latitude: Double, longitude: Double) {
+        RoomRepository(context).insertTask(latitude, longitude)
     }
 
 }

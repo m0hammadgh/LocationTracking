@@ -6,11 +6,14 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager.PERMISSION_GRANTED
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.github.kayvannj.permission_utils.Func2
 import com.github.kayvannj.permission_utils.PermissionUtil
+import com.golriz.gpstracker.BroadCast.Events
+import com.golriz.gpstracker.BroadCast.GlobalBus
 import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Action
 import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Action_Sync
 import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Gps
@@ -19,6 +22,8 @@ import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Last_Point_Distan
 import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Location_Interval
 import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Sync_Count
 import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Sync_Time
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import java.io.Serializable
 
 
@@ -198,5 +203,12 @@ class LocationTracker(
 
     }
 
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    fun getMessage(fragmentActivityMessage: Events.ActivityFragmentMessage) {
+        GlobalBus.bus?.register(this)
+        val messageView = fragmentActivityMessage.location
+        Log.d("heeeeyy", "look like is here $messageView")
+
+    }
 
 }

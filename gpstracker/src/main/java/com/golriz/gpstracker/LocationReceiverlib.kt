@@ -12,6 +12,7 @@ import com.golriz.gpstracker.Core.SettingsLocationTracker
 import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Last_Point_Distance
 import com.golriz.gpstracker.DB.repository.RoomRepository
 
+
 class LocationReceiverlib : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent?) {
@@ -19,9 +20,8 @@ class LocationReceiverlib : BroadcastReceiver() {
             val locationData =
                 intent.getParcelableExtra<Parcelable>(SettingsLocationTracker.LOCATION_MESSAGE) as Location?
             Log.d("Location: ", "Latitude: " + locationData?.latitude + "Longitude:" + locationData?.longitude)
-            calculateDistance(locationData!!.latitude, locationData.longitude, context)
+//            calculateDistance(locationData!!.latitude, locationData.longitude, context)
             //RoomRepository(context).insertTask(locationData.latitude, locationData.longitude)
-
 
         }
     }
@@ -49,5 +49,6 @@ class LocationReceiverlib : BroadcastReceiver() {
     private fun insertToDB(context: Context, latitude: Double, longitude: Double) {
         RoomRepository(context).insertTask(latitude, longitude)
     }
+
 
 }
