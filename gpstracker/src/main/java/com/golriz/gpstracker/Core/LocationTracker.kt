@@ -11,17 +11,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.github.kayvannj.permission_utils.Func2
 import com.github.kayvannj.permission_utils.PermissionUtil
-import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Action
-import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Action_Sync
-import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Gps
-import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Internet
-import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Last_Point_Distance
-import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Location_Interval
-import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Sync_Count
-import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Sync_Time
 import com.golriz.gpstracker.DB.repository.RoomRepository
 import com.golriz.gpstracker.Enums.GpsModes
 import com.golriz.gpstracker.GpsInfo.GpsInfo
+import com.golriz.gpstracker.utils.SharedPrefManager
 import java.io.Serializable
 
 
@@ -39,7 +32,6 @@ class LocationTracker(
     private var storeToDataBase: Boolean = true
     private var currentLocationReceiver: BroadcastReceiver? = null
     private var sync_action: String? = null
-
 
 
     /*******    *****/
@@ -188,18 +180,18 @@ class LocationTracker(
     }
 
     private fun saveSettingsInLocalStorage(context: Context) {
-        val appPreferences = AppPreferences(context)
+        val prefManager = SharedPrefManager(context)
         if (this.interval != 0L) {
-            appPreferences.putLong(Pref_Location_Interval, this.interval)
+            prefManager.setNewLocationInterval(this.interval)
         }
 
-        appPreferences.putString(Pref_Action, this.actionReceiver)
-        appPreferences.putBoolean(Pref_Gps, this.gps)
-        appPreferences.putBoolean(Pref_Internet, this.netWork)
-        appPreferences.putInt(Pref_Last_Point_Distance, this.distance)
-        appPreferences.putInt(Pref_Sync_Count, this.syncCount)
-        appPreferences.putLong(Pref_Sync_Time, this.syncInterval)
-        appPreferences.putString(Pref_Action_Sync, this.sync_action!!)
+
+        prefManager.setLocationAction(this.actionReceiver)
+        prefManager.setIsUsingGps(this.gps)
+        prefManager.setIsUsingWifi(this.netWork)
+        prefManager.setNewLocationDistance(this.distance)
+        prefManager.setSyncItemCount(this.syncCount)
+        prefManager.setSyncInterval(this.syncInterval)
 
 
     }

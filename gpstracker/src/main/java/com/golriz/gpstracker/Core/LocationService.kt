@@ -11,11 +11,8 @@ import android.util.Log
 import com.golriz.gpstracker.BroadCast.Events
 import com.golriz.gpstracker.BroadCast.GlobalBus
 import com.golriz.gpstracker.Core.SettingsLocationTracker.ACTION_CURRENT_LOCATION_BROADCAST
-import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Action
-import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Gps
-import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Internet
-import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Location_Interval
 import com.golriz.gpstracker.DB.repository.RoomRepository
+import com.golriz.gpstracker.utils.SharedPrefManager
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationListener
@@ -42,11 +39,12 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
 
     private var netWork: Boolean? = null
 
-    private var appPreferences: AppPreferences? = null
+
+    private var prefManager: SharedPrefManager? = null
 
     override fun onCreate() {
         super.onCreate()
-        appPreferences = AppPreferences(baseContext)
+        prefManager = SharedPrefManager(baseContext)
 
 
     }
@@ -54,23 +52,23 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
 
         if (this.actionReceiver == null) {
-            this.actionReceiver = this.appPreferences!!.getString(Pref_Action, "LOCATION.ACTION")
+            this.actionReceiver = prefManager?.getLocationAction
         }
 
-        this.delay = this.appPreferences!!.getLong(SettingsLocationTracker.Pref_Sync_Time, 6000)
+        this.delay = prefManager?.getSyncInterval
 
-        this.syncItemCount = this.appPreferences!!.getInt(SettingsLocationTracker.Pref_Sync_Count, 10)!!
+        this.syncItemCount = prefManager?.getSyncItemCount!!
 
         if (this.interval <= 0) {
-            this.interval = this.appPreferences!!.getLong(Pref_Location_Interval, 10000L)!!
+            this.interval = prefManager?.getNewLocationInterval!!
         }
 
         if (this.gps == null) {
-            this.gps = this.appPreferences!!.getBoolean(Pref_Gps, true)
+            this.gps = prefManager?.getIsUsingGps
         }
 
         if (this.netWork == null) {
-            this.netWork = this.appPreferences!!.getBoolean(Pref_Internet, false)
+            this.netWork = prefManager?.getIsUsingWifi
         }
 
         buildGoogleApiClient()
@@ -82,7 +80,7 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
 
         calculateSyncInterval()
 
-        return Service.START_STICKY
+        return START_STICKY
     }
 
     @Synchronized
@@ -228,7 +226,7 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
         lastInsertedPoint.longitude = lastItem.longtitude!!
         lastInsertedPoint.latitude = lastItem.latitude!!
         val distance = CalculateLocationDistance(currentPoint, lastInsertedPoint).calculateDistance()
-        val desiredDistance = AppPreferences(context).getInt(SettingsLocationTracker.Pref_Last_Point_Distance, 0)
+        val desiredDistance = prefManager?.getNewLocationDistance
         if (distance > desiredDistance!!) {
             Log.d("distance", "distance is bigger")
             insertToDB(context, latitude, longitude)

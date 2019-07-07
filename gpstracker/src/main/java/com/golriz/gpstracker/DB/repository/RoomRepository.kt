@@ -5,10 +5,9 @@ import android.content.Context
 import android.os.AsyncTask
 import androidx.lifecycle.LiveData
 import androidx.room.Room
-import com.golriz.gpstracker.Core.AppPreferences
-import com.golriz.gpstracker.Core.SettingsLocationTracker
 import com.golriz.gpstracker.DB.db.UserDatabase
 import com.golriz.gpstracker.DB.model.UserCurrentLocation
+import com.golriz.gpstracker.utils.SharedPrefManager
 
 class RoomRepository(private val context: Context) {
 
@@ -90,10 +89,10 @@ class RoomRepository(private val context: Context) {
 
 
     fun checkPrePopulation() {
-        val appPreferences = AppPreferences(context)
-        if (appPreferences.getBoolean(SettingsLocationTracker.Pref_PopulateDb, false) == false) {
+        val appPreferences = SharedPrefManager(context)
+        if (appPreferences.getIsPopulatedDb == false) {
             insertTask(0.0, 0.0)
-            appPreferences.putBoolean(SettingsLocationTracker.Pref_PopulateDb, true)
+            appPreferences.setDBPopulated(true)
 
         }
     }

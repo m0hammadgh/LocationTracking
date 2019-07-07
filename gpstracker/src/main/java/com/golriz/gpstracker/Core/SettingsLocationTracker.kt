@@ -13,13 +13,12 @@ object SettingsLocationTracker {
 
 
     var Pref_Action = "ACTION"
-    var Pref_Action_Sync = "Action_Sync"
-    var Pref_Location_Interval = "LOCATION_INTERVAL"
-    var Pref_Last_Point_Distance = "LOCATION_Distance"
-    var Pref_Sync_Time = "Sync_INTERVAL"
-    var Pref_Sync_Count = "Sync_Count"
-    var Pref_Gps = "GPS"
-    var Pref_Internet = "NETWORK"
+    var PrefNewLocationInterval = "LOCATION_INTERVAL"
+    var PrefDistanceBetweenLastPoint = "LOCATION_Distance"
+    var PrefSyncInterval = "Sync_INTERVAL"
+    var PrefSyncItemCount = "Sync_Count"
+    var PrefIsUsingGps = "GPS"
+    var PrefIsUsingWifi = "NETWORK"
     var Pref_PopulateDb = "Populate DB"
 
     var isServiceRunning: Boolean = false
