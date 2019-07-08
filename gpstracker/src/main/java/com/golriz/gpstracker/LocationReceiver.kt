@@ -9,7 +9,7 @@ import android.util.Log
 import com.golriz.gpstracker.Core.SettingsLocationTracker
 
 
-class LocationReceiverlib : BroadcastReceiver() {
+class LocationReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent?) {
         if (null != intent && intent.action == "my.action.mohammad") {
