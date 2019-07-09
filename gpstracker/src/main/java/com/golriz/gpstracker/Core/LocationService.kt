@@ -1,24 +1,18 @@
 package com.golriz.gpstracker.Core
 
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.location.Location
-import android.media.RingtoneManager
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.util.Log
-import androidx.core.content.ContextCompat
 import com.golriz.gpstracker.BroadCast.Events
 import com.golriz.gpstracker.BroadCast.GlobalBus
-import com.golriz.gpstracker.Core.SettingsLocationTracker.ACTION_CURRENT_LOCATION_BROADCAST
 import com.golriz.gpstracker.DB.repository.RoomRepository
-import com.golriz.gpstracker.R
+import com.golriz.gpstracker.utils.SettingsLocationTracker
+import com.golriz.gpstracker.utils.SettingsLocationTracker.ACTION_CURRENT_LOCATION_BROADCAST
 import com.golriz.gpstracker.utils.SharedPrefManager
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
@@ -59,6 +53,7 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
 
+
         if (this.actionReceiver == null) {
             this.actionReceiver = prefManager?.getLocationAction
         }
@@ -87,7 +82,7 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
         }
 
         calculateSyncInterval()
-        createNotification()
+        NotificationCreator(baseContext, this).createNotification()
         return START_STICKY
     }
 
@@ -248,55 +243,6 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
 
     private fun insertToDB(context: Context, latitude: Double, longitude: Double) {
         RoomRepository(context).insertTask(latitude, longitude)
-    }
-
-    private fun createNotification() {
-
-        //TODO  This is a test . all variables need to be changes to declaration
-        val mBuilder = Notification.Builder(
-            baseContext
-        )
-        val notification: Notification?
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            notification = mBuilder.setSmallIcon(R.drawable.ic_launcher).setTicker("Tracking").setWhen(0)
-                .setAutoCancel(false)
-                .setCategory(Notification.EXTRA_BIG_TEXT)
-                .setContentTitle("گلریز")
-                .setContentText("سامانه دستیار گلریز")
-                .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
-                .setColor(ContextCompat.getColor(baseContext, R.color.red))
-                .setStyle(
-                    Notification.BigTextStyle()
-                        .bigText("سامانه دستیار گلریز")
-                )
-                .setChannelId("track_marty")
-                .setShowWhen(true)
-                .setOngoing(true)
-                .build()
-        } else {
-            notification =
-                mBuilder.setSmallIcon(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) R.drawable.ic_launcher else R.drawable.ic_launcher)
-                    .setTicker("Tracking").setWhen(0)
-                    .setAutoCancel(false)
-                    .setContentTitle("گلریز")
-                    .setContentText("سامانه دستیار گلریز")
-                    .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
-                    .setStyle(
-                        Notification.BigTextStyle()
-                            .bigText("سامانه دستیار گلریز")
-                    )
-                    .setPriority(Notification.PRIORITY_HIGH)
-                    .setOngoing(true)
-                    .build()
-        }
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val mChannel = NotificationChannel("track_marty", "Track", NotificationManager.IMPORTANCE_HIGH)
-            notificationManager.createNotificationChannel(mChannel)
-        }
-        /*assert notificationManager != null;
-        notificationManager.notify(0, notification);*/
-        startForeground(1, notification) //for foreground service, don't use 0 as id. it will not work.
     }
 
 

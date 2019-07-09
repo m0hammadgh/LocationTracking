@@ -10,9 +10,9 @@ import com.golriz.gpstracker.BroadCast.Events
 import com.golriz.gpstracker.BroadCast.GlobalBus
 import com.golriz.gpstracker.Core.CalculateLocationDistance
 import com.golriz.gpstracker.Core.LocationTracker
-import com.golriz.gpstracker.Core.SettingsLocationTracker.PERMISSION_ACCESS_LOCATION_CODE
 import com.golriz.gpstracker.DB.model.UserCurrentLocation
 import com.golriz.gpstracker.DB.repository.RoomRepository
+import com.golriz.gpstracker.utils.SettingsLocationTracker.PERMISSION_ACCESS_LOCATION_CODE
 import kotlinx.android.synthetic.main.activity_main.*
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -29,13 +29,7 @@ class MainActivity : AppCompatActivity() {
 
         btnStop.setOnClickListener {
 
-
-            if (locationTracker!!.validatePermissions(baseContext, this)) {
-                (locationTracker?.start(baseContext))
-            } else {
-                locationTracker?.askPermissions(baseContext, this)
-
-            }
+            locationTracker?.start(baseContext, this)
         }
 
         btnStart.setOnClickListener {
@@ -59,13 +53,12 @@ class MainActivity : AppCompatActivity() {
     private fun init() {
 
         locationTracker = LocationTracker("my.action.mohammad")
-            .setInterval(5000)
-            .setGps(true)
-            .setDistance(50)
-            .setSyncCount(5)
-            .setSyncInterval(5000)
-            .setSyncAction("action.sync")
-            .setNetWork(true)
+            .setNewPointInterval(5000)
+            .setOnlyGpsMode(true)
+            .setMinDistanceBetweenLocations(50)
+            .setCountOfSyncItems(5)
+            .setSyncToServerInterval(5000)
+            .setHighAccuracyMode(true)
         GlobalBus.bus?.register(this)
 
     }
@@ -115,7 +108,7 @@ class MainActivity : AppCompatActivity() {
         LocationTracker("my.action.mohammad").onRequestPermission(requestCode, permissions, grantResults)
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PERMISSION_ACCESS_LOCATION_CODE) {
-            (locationTracker?.start(baseContext))
+            (locationTracker?.start(baseContext, this))
         }
 
     }

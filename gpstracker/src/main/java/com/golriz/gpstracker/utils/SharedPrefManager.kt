@@ -3,14 +3,15 @@ package com.golriz.gpstracker.utils
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
-import com.golriz.gpstracker.Core.SettingsLocationTracker.PrefDistanceBetweenLastPoint
-import com.golriz.gpstracker.Core.SettingsLocationTracker.PrefIsUsingGps
-import com.golriz.gpstracker.Core.SettingsLocationTracker.PrefIsUsingWifi
-import com.golriz.gpstracker.Core.SettingsLocationTracker.PrefNewLocationInterval
-import com.golriz.gpstracker.Core.SettingsLocationTracker.PrefSyncInterval
-import com.golriz.gpstracker.Core.SettingsLocationTracker.PrefSyncItemCount
-import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_Action
-import com.golriz.gpstracker.Core.SettingsLocationTracker.Pref_PopulateDb
+import com.golriz.gpstracker.utils.SettingsLocationTracker.PrefDistanceBetweenLastPoint
+import com.golriz.gpstracker.utils.SettingsLocationTracker.PrefIsServiceRunning
+import com.golriz.gpstracker.utils.SettingsLocationTracker.PrefIsUsingGps
+import com.golriz.gpstracker.utils.SettingsLocationTracker.PrefIsUsingWifi
+import com.golriz.gpstracker.utils.SettingsLocationTracker.PrefNewLocationInterval
+import com.golriz.gpstracker.utils.SettingsLocationTracker.PrefSyncInterval
+import com.golriz.gpstracker.utils.SettingsLocationTracker.PrefSyncItemCount
+import com.golriz.gpstracker.utils.SettingsLocationTracker.Pref_Action
+import com.golriz.gpstracker.utils.SettingsLocationTracker.Pref_PopulateDb
 
 
 class SharedPrefManager
@@ -108,5 +109,18 @@ constructor(private val context: Context) {
         editor?.apply()
 
     }
+
+    /******* store running service status ********/
+
+    fun getIsServiceRunning(): Boolean? {
+        return pr.getBoolean(PrefIsServiceRunning, false)
+    }
+
+    fun setIsServiceRunning(state: Boolean) {
+        editor?.putBoolean(PrefIsServiceRunning, state)
+        editor?.apply()
+
+    }
+
 
 }

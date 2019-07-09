@@ -2,17 +2,17 @@ package com.golriz.gpstracker.Core
 
 import android.location.Location
 
-class CalculateLocationDistance(var point1: Location, var point2: Location) {
+class CalculateLocationDistance(var startPoint: Location, var endPoint: Location) {
     fun calculateDistance(): Float {
-        val locationA = Location("point A")
+        val locationA = Location("Start Point")
 
-        locationA.latitude = point1.latitude
-        locationA.longitude = point1.longitude
+        locationA.latitude = startPoint.latitude
+        locationA.longitude = startPoint.longitude
 
-        val locationB = Location("point B")
+        val locationB = Location("End Point")
 
-        locationB.latitude = point2.latitude
-        locationB.longitude = point2.longitude
+        locationB.latitude = endPoint.latitude
+        locationB.longitude = endPoint.longitude
 
         return locationA.distanceTo(locationB)
 

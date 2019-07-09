@@ -6,7 +6,7 @@ import android.content.Intent
 import android.location.Location
 import android.os.Parcelable
 import android.util.Log
-import com.golriz.gpstracker.Core.SettingsLocationTracker
+import com.golriz.gpstracker.utils.SettingsLocationTracker
 
 
 class LocationReceiver : BroadcastReceiver() {
