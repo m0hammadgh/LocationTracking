@@ -1,4 +1,4 @@
-@file:Suppress("DEPRECATION")
+@file:Suppress("DEPRECATION", "UNREACHABLE_CODE")
 
 package com.golriz.gpstracker.Core
 

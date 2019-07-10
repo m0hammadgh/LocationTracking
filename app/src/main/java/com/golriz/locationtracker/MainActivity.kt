@@ -12,6 +12,7 @@ import com.golriz.gpstracker.Core.CalculateLocationDistance
 import com.golriz.gpstracker.Core.LocationTracker
 import com.golriz.gpstracker.DB.model.UserCurrentLocation
 import com.golriz.gpstracker.DB.repository.RoomRepository
+import com.golriz.gpstracker.GpsInfo.Singleton
 import com.golriz.gpstracker.utils.SettingsLocationTracker.PERMISSION_ACCESS_LOCATION_CODE
 import kotlinx.android.synthetic.main.activity_main.*
 import org.greenrobot.eventbus.Subscribe
@@ -60,6 +61,11 @@ class MainActivity : AppCompatActivity() {
             .setSyncToServerInterval(5000)
             .setHighAccuracyMode(true)
         GlobalBus.bus?.register(this)
+
+        Singleton.getInstance().startCollectingLocationData()
+
+        val i = Singleton.getInstance().gpsData.satellitesSize
+
 
     }
 
