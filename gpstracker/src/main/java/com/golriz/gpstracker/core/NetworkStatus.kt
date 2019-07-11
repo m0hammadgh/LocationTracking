@@ -2,22 +2,23 @@ package com.golriz.gpstracker.core
 
 class MyNetworkStatus {
 
-    private val text_on = "ON"
-    private val text_off = "OFF"
-    var isGPSEnabled: Boolean = false
-    var isCellNetworkEnabled: Boolean = false
+    private val txtOn = "ON"
+    private val txtOff = "OFF"
+    var isGPSEnabled = false
+    var isCellNetworkEnabled = false
 
     val isGPSEnabledAsString: String
         get() = if (isGPSEnabled) {
-            text_on
+            txtOn
         } else {
-            text_off
+            txtOff
         }
 
     val isCellNetworkEnabledAsString: String
         get() = if (isCellNetworkEnabled) {
-            text_on
+            txtOn
         } else {
-            text_off
+            txtOff
         }
 }
+

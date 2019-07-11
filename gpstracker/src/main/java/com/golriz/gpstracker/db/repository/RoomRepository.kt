@@ -31,12 +31,16 @@ class RoomRepository(private val context: Context) {
 
     fun insertTask(
         latitude: Double?,
-        longitude: Double?
+        longitude: Double?,
+        isSynced: Boolean?
     ) {
 
         val note = UserCurrentLocation()
         note.latitude = latitude
         note.longtitude = longitude
+        if (isSynced != null) {
+            note.isSynced = true
+        }
         note.isSynced = false
         val tsLong = System.currentTimeMillis() / 1000
 
@@ -58,7 +62,7 @@ class RoomRepository(private val context: Context) {
     }
 
     fun getUnSyncedLocations(count: Int): List<UserCurrentLocation> {
-        return GetUnSyncedLocations().execute().get()
+        return GetUnSyncedLocations(count).execute().get()
     }
 
     fun getLasSubmittedRecord(): LiveData<UserCurrentLocation> {
@@ -80,9 +84,9 @@ class RoomRepository(private val context: Context) {
     }
 
     @SuppressLint("StaticFieldLeak")
-    private inner class GetUnSyncedLocations : AsyncTask<Void, Void, List<UserCurrentLocation>>() {
+    private inner class GetUnSyncedLocations(val count: Int) : AsyncTask<Void, Void, List<UserCurrentLocation>>() {
         override fun doInBackground(vararg p0: Void?): List<UserCurrentLocation> {
-            return noteDatabase.daoAccess().getUnSyncedLocation()
+            return noteDatabase.daoAccess().selectNumberOfLocations(false, count)
         }
 
     }
@@ -91,7 +95,7 @@ class RoomRepository(private val context: Context) {
     fun checkPrePopulation() {
         val appPreferences = SharedPrefManager(context)
         if (appPreferences.getIsPopulatedDb == false) {
-            insertTask(0.0, 0.0)
+            insertTask(0.0, 0.0, true)
             appPreferences.setDBPopulated(true)
 
         }

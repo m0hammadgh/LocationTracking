@@ -244,7 +244,7 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
     }
 
     private fun insertToDB(latitude: Double, longitude: Double) {
-        RoomRepository(baseContext).insertTask(latitude, longitude)
+        RoomRepository(baseContext).insertTask(latitude, longitude, null)
     }
 
 

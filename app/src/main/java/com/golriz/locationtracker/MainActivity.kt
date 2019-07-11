@@ -72,7 +72,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addDataToDB() {
-        RoomRepository(this).insertTask(123.565, 15.6663)
+        RoomRepository(this).insertTask(123.565, 15.6663, null)
     }
 
     private fun getLocationList() {
