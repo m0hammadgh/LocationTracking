@@ -13,7 +13,7 @@
             android:supportsRtl="true">
 
         <service
-                android:name=".Core.LocationService"
+                android:name=".core.LocationService"
                 android:enabled="true"
                 android:exported="true" tools:ignore="ExportedService,InnerclassSeparator"/>
 

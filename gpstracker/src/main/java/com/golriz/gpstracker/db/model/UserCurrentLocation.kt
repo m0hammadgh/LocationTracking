@@ -1,4 +1,4 @@
-package com.golriz.gpstracker.DB.model
+package com.golriz.gpstracker.db.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

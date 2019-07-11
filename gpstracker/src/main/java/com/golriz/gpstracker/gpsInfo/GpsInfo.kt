@@ -1,31 +1,31 @@
-package com.golriz.gpstracker.GpsInfo
+package com.golriz.gpstracker.gpsInfo
 
 import android.content.Context
 import android.location.LocationManager
-import com.golriz.gpstracker.Enums.GpsModes
+import com.golriz.gpstracker.enums.GpsModes
 
 class GpsInfo(private val context: Context) {
 
     fun currentGpsInfo(): GpsModes {
         val lm = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        var gps_enabled = false
-        var network_enabled = false
+        var isGpsEnabled = false
+        var isWifiEnabled = false
 
         try {
-            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
+            isGpsEnabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
         } catch (ex: Exception) {
         }
 
         try {
-            network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+            isWifiEnabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
         } catch (ex: Exception) {
         }
 
-        if (gps_enabled && network_enabled)
+        if (isGpsEnabled && isWifiEnabled)
             return GpsModes.HighAccuracy
-        else if (network_enabled && !gps_enabled)
+        else if (isWifiEnabled && !isGpsEnabled)
             return GpsModes.BatterySaving
-        else if (!network_enabled && gps_enabled)
+        else if (!isWifiEnabled && isGpsEnabled)
             return GpsModes.GpsOnly
         else return GpsModes.Off
 

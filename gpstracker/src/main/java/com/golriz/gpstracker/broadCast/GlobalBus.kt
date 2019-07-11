@@ -1,4 +1,4 @@
-package com.golriz.gpstracker.BroadCast
+package com.golriz.gpstracker.broadCast
 
 import org.greenrobot.eventbus.EventBus
 

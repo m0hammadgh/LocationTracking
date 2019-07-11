@@ -1,12 +1,12 @@
-package com.golriz.gpstracker.DB.repository
+package com.golriz.gpstracker.db.repository
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.AsyncTask
 import androidx.lifecycle.LiveData
 import androidx.room.Room
-import com.golriz.gpstracker.DB.db.UserDatabase
-import com.golriz.gpstracker.DB.model.UserCurrentLocation
+import com.golriz.gpstracker.db.db.UserDatabase
+import com.golriz.gpstracker.db.model.UserCurrentLocation
 import com.golriz.gpstracker.utils.SharedPrefManager
 
 class RoomRepository(private val context: Context) {

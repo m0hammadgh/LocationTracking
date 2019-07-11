@@ -1,13 +1,13 @@
 package com.golriz.gpstracker
 
 import android.app.Application
-import com.golriz.gpstracker.GpsInfo.Singleton
+import com.golriz.gpstracker.gpsInfo.GpsSetting
 
 class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        Singleton.getInstance().setContext(applicationContext)
+        GpsSetting.instance?.setContext(applicationContext)
 
     }
 }

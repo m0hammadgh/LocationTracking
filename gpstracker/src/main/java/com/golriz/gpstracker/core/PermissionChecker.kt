@@ -1,4 +1,4 @@
-package com.golriz.gpspointer.Config
+package com.golriz.gpstracker.core
 
 import android.Manifest
 import android.app.Activity

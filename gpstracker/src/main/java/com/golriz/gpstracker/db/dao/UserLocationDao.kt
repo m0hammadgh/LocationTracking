@@ -1,11 +1,11 @@
-package com.golriz.gpstracker.DB.dao
+package com.golriz.gpstracker.db.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import com.golriz.gpstracker.DB.model.UserCurrentLocation
+import com.golriz.gpstracker.db.model.UserCurrentLocation
 
 
 @Dao

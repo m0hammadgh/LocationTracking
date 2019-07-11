@@ -24,6 +24,9 @@ object SettingsLocationTracker {
     const val NotificationChannelId = "notification_channel"
     const val NotificationTicker = "Tracking"
 
+    const val startLocation = "StartPoint"
+    const val endLocation = "EndPoint"
+
 
 
 }

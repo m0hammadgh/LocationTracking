@@ -1,4 +1,4 @@
-package com.golriz.gpstracker.Core
+package com.golriz.gpstracker.core
 
 class MyNetworkStatus {
 

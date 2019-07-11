@@ -1,6 +1,6 @@
-package com.golriz.gpstracker.Core
+package com.golriz.gpstracker.core
 
-import com.golriz.gpstracker.DB.model.UserCurrentLocation
+import com.golriz.gpstracker.db.model.UserCurrentLocation
 
 interface UnSyncedLocations {
 

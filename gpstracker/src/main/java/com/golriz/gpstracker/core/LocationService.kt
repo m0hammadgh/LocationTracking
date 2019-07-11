@@ -1,4 +1,4 @@
-package com.golriz.gpstracker.Core
+package com.golriz.gpstracker.core
 
 import android.app.Service
 import android.content.Context
@@ -8,11 +8,14 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.util.Log
-import com.golriz.gpstracker.BroadCast.Events
-import com.golriz.gpstracker.BroadCast.GlobalBus
-import com.golriz.gpstracker.DB.repository.RoomRepository
+import com.golriz.gpstracker.broadCast.Events
+import com.golriz.gpstracker.broadCast.GlobalBus
+import com.golriz.gpstracker.db.repository.RoomRepository
+import com.golriz.gpstracker.gpsInfo.AppLog
 import com.golriz.gpstracker.utils.SettingsLocationTracker
 import com.golriz.gpstracker.utils.SettingsLocationTracker.ACTION_CURRENT_LOCATION_BROADCAST
+import com.golriz.gpstracker.utils.SettingsLocationTracker.endLocation
+import com.golriz.gpstracker.utils.SettingsLocationTracker.startLocation
 import com.golriz.gpstracker.utils.SharedPrefManager
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
@@ -24,25 +27,24 @@ import com.google.android.gms.location.LocationServices
 class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
     LocationListener {
 
+    //region Google Api Values
     private lateinit var mGoogleApiClient: GoogleApiClient
-
     private lateinit var mLocationRequest: LocationRequest
-
     private var mCurrentLocation: Location? = null
 
-    private var interval: Long = 0
-    private var syncItemCount: Int = 0
-
-    internal var handler = Handler()
-    internal var delay: Long? = 0
-    private var actionReceiver: String? = null
-
-    private var gps: Boolean? = null
-
-    private var netWork: Boolean? = null
-
-
+    //endregion
+    //region Core values
+    private var newLocationInterval: Long = 0
+    private var syncToServerItemCount: Int = 0
+    internal var syncToServerInterval: Long? = 0
+    private var receiverName: String? = null
+    private var isUsingGps: Boolean? = null
+    private var isHighAccuracyMode: Boolean? = null
     private var prefManager: SharedPrefManager? = null
+    internal var handler = Handler()
+
+    //endregion
+
 
     override fun onCreate() {
         super.onCreate()
@@ -54,24 +56,24 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
 
 
-        if (this.actionReceiver == null) {
-            this.actionReceiver = prefManager?.getLocationAction
+        if (this.receiverName == null) {
+            this.receiverName = prefManager?.getLocationAction
         }
 
-        this.delay = prefManager?.getSyncInterval
+        this.syncToServerInterval = prefManager?.getSyncInterval
 
-        this.syncItemCount = prefManager?.getSyncItemCount!!
+        this.syncToServerItemCount = prefManager?.getSyncItemCount!!
 
-        if (this.interval <= 0) {
-            this.interval = prefManager?.getNewLocationInterval!!
+        if (this.newLocationInterval <= 0) {
+            this.newLocationInterval = prefManager?.getNewLocationInterval!!
         }
 
-        if (this.gps == null) {
-            this.gps = prefManager?.getIsUsingGps
+        if (this.isUsingGps == null) {
+            this.isUsingGps = prefManager?.getIsUsingGps
         }
 
-        if (this.netWork == null) {
-            this.netWork = prefManager?.getIsUsingWifi
+        if (this.isHighAccuracyMode == null) {
+            this.isHighAccuracyMode = prefManager?.getIsUsingWifi
         }
 
         buildGoogleApiClient()
@@ -99,11 +101,11 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
 
     private fun createLocationRequest() {
         mLocationRequest = LocationRequest()
-        mLocationRequest.interval = this.interval
-        mLocationRequest.fastestInterval = this.interval / 2
-        if (this.gps!!) {
+        mLocationRequest.interval = this.newLocationInterval
+        mLocationRequest.fastestInterval = this.newLocationInterval / 2
+        if (this.isUsingGps!!) {
             mLocationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        } else if (this.netWork!!) {
+        } else if (this.isHighAccuracyMode!!) {
             mLocationRequest.priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
         }
     }
@@ -120,20 +122,20 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
 
     private fun updateService() {
         if (null != mCurrentLocation) {
-            calculateDistance(this.mCurrentLocation!!.latitude, this.mCurrentLocation!!.longitude, baseContext)
+            calculateDistance(this.mCurrentLocation!!.latitude, this.mCurrentLocation!!.longitude)
 
             sendLocationBroadcast(this.mCurrentLocation!!)
             sendCurrentLocationBroadCast(this.mCurrentLocation!!)
             Log.d("Info: ", "calculating distance")
         } else {
-            sendPermissionDeinedBroadCast()
+            sendPermissionDeniedBroadCast()
             Log.d("Error: ", "Permission dastrasi nadarad")
         }
     }
 
     private fun sendLocationBroadcast(sbLocationData: Location) {
         val locationIntent = Intent()
-        locationIntent.action = this.actionReceiver
+        locationIntent.action = this.receiverName
         locationIntent.putExtra(SettingsLocationTracker.LOCATION_MESSAGE, sbLocationData)
         sendBroadcast(locationIntent)
     }
@@ -147,7 +149,7 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
 
     }
 
-    private fun sendPermissionDeinedBroadCast() {
+    private fun sendPermissionDeniedBroadCast() {
         val locationIntent = Intent()
         locationIntent.action = SettingsLocationTracker.ACTION_PERMISSION_DEINED
         sendBroadcast(locationIntent)
@@ -168,7 +170,7 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
 
     @Throws(SecurityException::class)
     override fun onConnected(connectionHint: Bundle?) {
-        Log.i(TAG, "Connected to GoogleApiClient")
+        AppLog.i("Connected to GoogleApiClient")
         if (mCurrentLocation == null) {
             mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient)
             updateService()
@@ -186,7 +188,7 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
     }
 
     override fun onConnectionFailed(result: ConnectionResult) {
-        Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = " + result.errorCode)
+        Log.i(TAG, "Connection failed: ${result.errorCode}")
     }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -213,27 +215,27 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
     private fun calculateSyncInterval() {
         handler.postDelayed(object : Runnable {
             override fun run() {
-                val locations = RoomRepository(baseContext).getUnSyncedLocations(syncItemCount)
+                val locations = RoomRepository(baseContext).getUnSyncedLocations(syncToServerItemCount)
                 val activityFragmentMessageEvent = Events.SendLocation(locations)
                 GlobalBus.bus?.post(activityFragmentMessageEvent)
-                handler.postDelayed(this, delay!!)
+                handler.postDelayed(this, syncToServerInterval!!)
             }
-        }, delay!!)
+        }, syncToServerInterval!!)
     }
 
-    private fun calculateDistance(latitude: Double, longitude: Double, context: Context) {
-        val lastItem = RoomRepository(context).getLasSubmittedItem()
-        val currentPoint = Location("current User Point")
+    private fun calculateDistance(latitude: Double, longitude: Double) {
+        val lastItem = RoomRepository(baseContext).getLasSubmittedItem()
+        val currentPoint = Location(startLocation)
         currentPoint.latitude = latitude
         currentPoint.longitude = longitude
-        val lastInsertedPoint = Location("Last Inserted Point")
+        val lastInsertedPoint = Location(endLocation)
         lastInsertedPoint.longitude = lastItem.longtitude!!
         lastInsertedPoint.latitude = lastItem.latitude!!
         val distance = CalculateLocationDistance(currentPoint, lastInsertedPoint).calculateDistance()
         val desiredDistance = prefManager?.getNewLocationDistance
         if (distance > desiredDistance!!) {
             Log.d("distance", "distance is bigger")
-            insertToDB(context, latitude, longitude)
+            insertToDB(latitude, longitude)
         } else {
             Log.d("distance", "distance is not bigger")
         }
@@ -241,8 +243,8 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
 
     }
 
-    private fun insertToDB(context: Context, latitude: Double, longitude: Double) {
-        RoomRepository(context).insertTask(latitude, longitude)
+    private fun insertToDB(latitude: Double, longitude: Double) {
+        RoomRepository(baseContext).insertTask(latitude, longitude)
     }
 
 

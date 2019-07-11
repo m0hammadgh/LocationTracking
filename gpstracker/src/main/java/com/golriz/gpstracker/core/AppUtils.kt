@@ -1,6 +1,6 @@
 @file:Suppress("DEPRECATION", "UNREACHABLE_CODE")
 
-package com.golriz.gpstracker.Core
+package com.golriz.gpstracker.core
 
 import android.app.ActivityManager
 import android.content.Context

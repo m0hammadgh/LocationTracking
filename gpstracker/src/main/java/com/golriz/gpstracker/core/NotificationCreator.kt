@@ -1,4 +1,4 @@
-package com.golriz.gpstracker.Core
+package com.golriz.gpstracker.core
 
 import android.app.Notification
 import android.app.Notification.Builder

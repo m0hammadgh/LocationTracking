@@ -1,9 +1,9 @@
-package com.golriz.gpstracker.DB.db
+package com.golriz.gpstracker.db.db
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import com.golriz.gpstracker.DB.dao.UserLocationDao
-import com.golriz.gpstracker.DB.model.UserCurrentLocation
+import com.golriz.gpstracker.db.dao.UserLocationDao
+import com.golriz.gpstracker.db.model.UserCurrentLocation
 
 
 @Database(entities = [UserCurrentLocation::class], version = 1, exportSchema = false)

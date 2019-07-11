@@ -1,4 +1,4 @@
-package com.golriz.gpstracker.Core
+package com.golriz.gpstracker.core
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -6,9 +6,10 @@ import android.content.Intent
 import android.content.IntentFilter
 import androidx.appcompat.app.AppCompatActivity
 import com.github.kayvannj.permission_utils.PermissionUtil
-import com.golriz.gpstracker.DB.repository.RoomRepository
-import com.golriz.gpstracker.Enums.GpsModes
-import com.golriz.gpstracker.GpsInfo.GpsInfo
+import com.golriz.gpstracker.FakeTracker.FakeApplicationManager
+import com.golriz.gpstracker.db.repository.RoomRepository
+import com.golriz.gpstracker.enums.GpsModes
+import com.golriz.gpstracker.gpsInfo.GpsInfo
 import com.golriz.gpstracker.utils.SettingsLocationTracker
 import com.golriz.gpstracker.utils.SettingsLocationTracker.PERMISSION_ACCESS_LOCATION_CODE
 import com.golriz.gpstracker.utils.SharedPrefManager
@@ -73,6 +74,7 @@ class LocationTracker(
 
     fun start(context: Context, appCompatActivity: AppCompatActivity): LocationTracker? {
         validatePermissions(appCompatActivity)
+        FakeApplicationManager(context).init()
         RoomRepository(context).checkPrePopulation()
         if (!isServiceRunning(context)) {
             if (SharedPrefManager(context).getIsServiceRunning() == false) {
@@ -123,13 +125,13 @@ class LocationTracker(
     }
 
     private fun validatePermissions(appCompatActivity: AppCompatActivity) {
-        if (!com.golriz.gpspointer.Config.PermissionChecker(appCompatActivity).checkPermission(appCompatActivity)) {
+        if (!PermissionChecker(appCompatActivity).checkPermission(appCompatActivity)) {
             askPermissions(appCompatActivity)
         }
     }
 
     private fun askPermissions(appCompatActivity: AppCompatActivity) {
-        com.golriz.gpspointer.Config.PermissionChecker(appCompatActivity)
+        PermissionChecker(appCompatActivity)
             .requestPermission(appCompatActivity, PERMISSION_ACCESS_LOCATION_CODE)
     }
 

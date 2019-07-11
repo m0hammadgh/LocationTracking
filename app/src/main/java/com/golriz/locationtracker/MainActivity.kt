@@ -1,18 +1,16 @@
 package com.golriz.locationtracker
 
-import android.location.Location
 import android.os.Bundle
 import android.widget.Toast
 import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
-import com.golriz.gpstracker.BroadCast.Events
-import com.golriz.gpstracker.BroadCast.GlobalBus
-import com.golriz.gpstracker.Core.CalculateLocationDistance
-import com.golriz.gpstracker.Core.LocationTracker
-import com.golriz.gpstracker.DB.model.UserCurrentLocation
-import com.golriz.gpstracker.DB.repository.RoomRepository
-import com.golriz.gpstracker.GpsInfo.Singleton
+import com.golriz.gpstracker.broadCast.Events
+import com.golriz.gpstracker.broadCast.GlobalBus
+import com.golriz.gpstracker.core.LocationTracker
+import com.golriz.gpstracker.db.model.UserCurrentLocation
+import com.golriz.gpstracker.db.repository.RoomRepository
+import com.golriz.gpstracker.gpsInfo.GpsSetting
 import com.golriz.gpstracker.utils.SettingsLocationTracker.PERMISSION_ACCESS_LOCATION_CODE
 import kotlinx.android.synthetic.main.activity_main.*
 import org.greenrobot.eventbus.Subscribe
@@ -62,9 +60,8 @@ class MainActivity : AppCompatActivity() {
             .setHighAccuracyMode(true)
         GlobalBus.bus?.register(this)
 
-        Singleton.getInstance().startCollectingLocationData()
 
-        val i = Singleton.getInstance().gpsData.satellitesSize
+        val i = GpsSetting.instance?.gpsData?.satellitesSize
 
 
     }
@@ -97,24 +94,14 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun calcutePoints(): Float {
-        var location1: Location = Location("Location 1")
-        var location2: Location = Location("Location 2")
-        location1.latitude = 36.342247
-        location1.longitude = 59.555205
-
-        location2.latitude = 36.342126
-        location2.longitude = 59.555763
-
-        return CalculateLocationDistance(location1, location2).calculateDistance()
-    }
-
     override fun onRequestPermissionsResult(requestCode: Int, @NonNull permissions: Array<String>, @NonNull grantResults: IntArray) {
 
         LocationTracker("my.action.mohammad").onRequestPermission(requestCode, permissions, grantResults)
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PERMISSION_ACCESS_LOCATION_CODE) {
             (locationTracker?.start(baseContext, this))
+            GpsSetting.instance?.startCollectingLocationData()
+
         }
 
     }
