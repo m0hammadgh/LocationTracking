@@ -1,4 +1,4 @@
-package com.golriz.gpstracker.core
+package com.golriz.gpstracker.utils
 
 import android.app.Notification
 import android.app.Notification.Builder
@@ -9,7 +9,6 @@ import android.content.Context
 import android.os.Build
 import androidx.core.content.ContextCompat
 import com.golriz.gpstracker.R
-import com.golriz.gpstracker.utils.SettingsLocationTracker
 
 @Suppress("DEPRECATION")
 class NotificationCreator(val context: Context, private val service: Service) {

@@ -10,22 +10,28 @@ import com.golriz.gpstracker.broadCast.GlobalBus
 import com.golriz.gpstracker.core.LocationTracker
 import com.golriz.gpstracker.db.model.UserCurrentLocation
 import com.golriz.gpstracker.db.repository.RoomRepository
+import com.golriz.gpstracker.gpsInfo.AppLog
 import com.golriz.gpstracker.gpsInfo.GpsSetting
 import com.golriz.gpstracker.utils.SettingsLocationTracker.PERMISSION_ACCESS_LOCATION_CODE
 import kotlinx.android.synthetic.main.activity_main.*
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
+import java.util.*
+import kotlin.concurrent.fixedRateTimer
 
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var time: Timer
     var locationTracker: LocationTracker? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         init()
 
-
+        this.time = fixedRateTimer("default", true, 1000L, 10000) {
+            AppLog.d("Hello from timer")
+        }
         btnStop.setOnClickListener {
 
             locationTracker?.start(baseContext, this)
@@ -69,6 +75,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun stopService() {
         locationTracker?.stopLocationService(this)
+        time.cancel()
     }
 
     private fun addDataToDB() {

@@ -5,13 +5,14 @@ import android.content.Context
 import android.content.Intent
 import android.location.Location
 import android.os.Bundle
-import android.os.Handler
 import android.os.IBinder
 import android.util.Log
 import com.golriz.gpstracker.broadCast.Events
 import com.golriz.gpstracker.broadCast.GlobalBus
 import com.golriz.gpstracker.db.repository.RoomRepository
 import com.golriz.gpstracker.gpsInfo.AppLog
+import com.golriz.gpstracker.utils.AppUtils
+import com.golriz.gpstracker.utils.NotificationCreator
 import com.golriz.gpstracker.utils.SettingsLocationTracker
 import com.golriz.gpstracker.utils.SettingsLocationTracker.ACTION_CURRENT_LOCATION_BROADCAST
 import com.golriz.gpstracker.utils.SettingsLocationTracker.endLocation
@@ -22,11 +23,14 @@ import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationListener
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
+import java.util.*
+import kotlin.concurrent.fixedRateTimer
 
 @Suppress("DEPRECATION")
 class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
     LocationListener {
 
+    private lateinit var schedulerSync: Timer
     //region Google Api Values
     private lateinit var mGoogleApiClient: GoogleApiClient
     private lateinit var mLocationRequest: LocationRequest
@@ -41,7 +45,7 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
     private var isUsingGps: Boolean? = null
     private var isHighAccuracyMode: Boolean? = null
     private var prefManager: SharedPrefManager? = null
-    internal var handler = Handler()
+
 
     //endregion
 
@@ -164,6 +168,7 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
 
     override fun onDestroy() {
         stopLocationUpdates()
+        schedulerSync.cancel()
         mGoogleApiClient.disconnect()
         super.onDestroy()
     }
@@ -213,14 +218,11 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
 //    }
 
     private fun calculateSyncInterval() {
-        handler.postDelayed(object : Runnable {
-            override fun run() {
-                val locations = RoomRepository(baseContext).getUnSyncedLocations(syncToServerItemCount)
-                val activityFragmentMessageEvent = Events.SendLocation(locations)
-                GlobalBus.bus?.post(activityFragmentMessageEvent)
-                handler.postDelayed(this, syncToServerInterval!!)
-            }
-        }, syncToServerInterval!!)
+        this.schedulerSync = fixedRateTimer("default", false, 0L, syncToServerInterval!!) {
+            val locations = RoomRepository(baseContext).getUnSyncedLocations(syncToServerItemCount)
+            val activityFragmentMessageEvent = Events.SendLocation(locations)
+            GlobalBus.bus?.post(activityFragmentMessageEvent)
+        }
     }
 
     private fun calculateDistance(latitude: Double, longitude: Double) {

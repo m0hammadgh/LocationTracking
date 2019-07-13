@@ -21,13 +21,13 @@ class GpsInfo(private val context: Context) {
         } catch (ex: Exception) {
         }
 
-        if (isGpsEnabled && isWifiEnabled)
-            return GpsModes.HighAccuracy
+        return if (isGpsEnabled && isWifiEnabled)
+            GpsModes.HighAccuracy
         else if (isWifiEnabled && !isGpsEnabled)
-            return GpsModes.BatterySaving
+            GpsModes.BatterySaving
         else if (!isWifiEnabled && isGpsEnabled)
-            return GpsModes.GpsOnly
-        else return GpsModes.Off
+            GpsModes.GpsOnly
+        else GpsModes.Off
 
 
     }

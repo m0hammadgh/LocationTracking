@@ -23,33 +23,5 @@ object GpsInfoConstants {
 
     }
 
-    enum class Payloads(val string: String) {
-        PAYLOAD_1("Payload_1"),
-        PAYLOAD_2("Payload_2"),
-        PAYLOAD_3("Payload_3"),
-        PAYLOAD_4("Payload_4"),
-        PAYLOAD_5("Payload_5")
-    }
-
-    enum class Results(val string: String) {
-        RESULT_1("Result_1"),
-        RESULT_2("Result_2"),
-        RESULT_3("Result_3")
-    }
-
-    enum class Requests(val code: Int) {
-        REQUEST_CODE_1(1),
-        REQUEST_CODE_2(2),
-        REQUEST_CODE_3(3)
-    }
-
-    enum class FragmentCode(val code: Int) {
-        FRAGMENT_CODE_0(6000),
-        FRAGMENT_CODE_GPS(6001),
-        FRAGMENT_CODE_NETWORK(6002),
-        FRAGMENT_CODE_PASSIVE(6003),
-        FRAGMENT_CODE_SATELLITES(6004),
-        FRAGMENT_CODE_NMEA(6005)
-    }
 
 }

@@ -9,6 +9,7 @@ import com.github.kayvannj.permission_utils.PermissionUtil
 import com.golriz.gpstracker.FakeTracker.FakeApplicationManager
 import com.golriz.gpstracker.db.repository.RoomRepository
 import com.golriz.gpstracker.enums.GpsModes
+import com.golriz.gpstracker.gpsInfo.AppLog
 import com.golriz.gpstracker.gpsInfo.GpsInfo
 import com.golriz.gpstracker.utils.SettingsLocationTracker
 import com.golriz.gpstracker.utils.SettingsLocationTracker.PERMISSION_ACCESS_LOCATION_CODE
@@ -74,7 +75,10 @@ class LocationTracker(
 
     fun start(context: Context, appCompatActivity: AppCompatActivity): LocationTracker? {
         validatePermissions(appCompatActivity)
-        FakeApplicationManager(context).init()
+        if (FakeApplicationManager(context).init()) {
+            AppLog.d("Error :  To use this service Uninstall all Fake Gps Applications First ")
+            return null
+        }
         RoomRepository(context).checkPrePopulation()
         if (!isServiceRunning(context)) {
             if (SharedPrefManager(context).getIsServiceRunning() == false) {
