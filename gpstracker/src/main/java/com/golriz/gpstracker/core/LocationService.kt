@@ -233,7 +233,7 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
         val lastInsertedPoint = Location(endLocation)
         lastInsertedPoint.longitude = lastItem.longtitude!!
         lastInsertedPoint.latitude = lastItem.latitude!!
-        val distance = CalculateLocationDistance(currentPoint, lastInsertedPoint).calculateDistance()
+        val distance = CalculateDistance(currentPoint, lastInsertedPoint).calculateDistance()
         val desiredDistance = prefManager?.getNewLocationDistance
         if (distance > desiredDistance!!) {
             Log.d("distance", "distance is bigger")

@@ -28,7 +28,7 @@ interface UserLocationDao {
     fun updateLocation(userLocation: UserCurrentLocation)
 
 
-    @Query(" select * from userLocation where isSynced='0' order by id desc limit 1")
+    @Query("select * from userLocation where isSynced='0' order by id desc limit 1")
     fun getLastItem(): LiveData<UserCurrentLocation>
 
     @Query("select * from userLocation where isSynced='0' order by id desc limit 1")
