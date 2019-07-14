@@ -26,7 +26,8 @@ object SettingsLocationTracker {
 
     const val startLocation = "StartPoint"
     const val endLocation = "EndPoint"
-
+    ///
+    const val actionReceiverName = "ActionReceiver"
 
 
 }

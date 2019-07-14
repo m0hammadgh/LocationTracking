@@ -159,7 +159,11 @@ class LocationTracker(
         prefManager.setNewLocationDistance(this.distanceFromLastPoint)
         prefManager.setSyncItemCount(this.syncItemCount)
         prefManager.setSyncInterval(this.syncToServerInterval)
-        GlobalBus.bus?.register(subscriber)
+        try {
+            GlobalBus.bus?.register(subscriber)
+
+        } catch (e: Exception) {
+        }
 
 
     }
