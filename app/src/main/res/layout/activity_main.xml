@@ -5,9 +5,11 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="vertical"
+              tools:ignore="HardcodedText"
               tools:context=".MainActivity">
 
     <EditText
+            android:id="@+id/edtInterval"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -19,6 +21,7 @@
             app:layout_constraintStart_toStartOf="parent"/>
 
     <EditText
+            android:id="@+id/edtMinDistance"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -30,6 +33,7 @@
             app:layout_constraintStart_toStartOf="parent"/>
 
     <EditText
+            android:id="@+id/edtSynInterval"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -41,6 +45,7 @@
             app:layout_constraintStart_toStartOf="parent"/>
 
     <EditText
+            android:id="@+id/edtSyncCount"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -68,30 +73,6 @@
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
             android:text="stop"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.517"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.988"/>
-    <Button
-            android:id="@+id/insertData"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:text="insert"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.517"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.988"/>
-    <Button
-            android:id="@+id/getsize"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:text="db size"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.517"

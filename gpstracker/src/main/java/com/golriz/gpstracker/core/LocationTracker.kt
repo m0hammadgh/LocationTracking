@@ -7,10 +7,12 @@ import android.content.IntentFilter
 import androidx.appcompat.app.AppCompatActivity
 import com.github.kayvannj.permission_utils.PermissionUtil
 import com.golriz.gpstracker.FakeTracker.FakeApplicationManager
+import com.golriz.gpstracker.broadCast.GlobalBus
 import com.golriz.gpstracker.db.repository.RoomRepository
 import com.golriz.gpstracker.enums.GpsModes
 import com.golriz.gpstracker.gpsInfo.AppLog
 import com.golriz.gpstracker.gpsInfo.GpsInfo
+import com.golriz.gpstracker.gpsInfo.GpsSetting
 import com.golriz.gpstracker.utils.SettingsLocationTracker
 import com.golriz.gpstracker.utils.SettingsLocationTracker.PERMISSION_ACCESS_LOCATION_CODE
 import com.golriz.gpstracker.utils.SharedPrefManager
@@ -18,7 +20,7 @@ import java.io.Serializable
 
 
 class LocationTracker(
-    private val actionReceiver: String
+    private val actionReceiver: String, private val subscriber: AppCompatActivity
 
 ) : Serializable {
     private var mBothPermissionRequest: PermissionUtil.PermissionRequestObject? = null
@@ -157,6 +159,7 @@ class LocationTracker(
         prefManager.setNewLocationDistance(this.distanceFromLastPoint)
         prefManager.setSyncItemCount(this.syncItemCount)
         prefManager.setSyncInterval(this.syncToServerInterval)
+        GlobalBus.bus?.register(subscriber)
 
 
     }
@@ -166,6 +169,10 @@ class LocationTracker(
         val gpsInfo = GpsInfo(context)
         return gpsInfo.currentGpsInfo()
 
+    }
+
+    private fun getConnectedSattelites(): Int? {
+        return GpsSetting.instance?.gpsData?.satellitesSize
     }
 
 }

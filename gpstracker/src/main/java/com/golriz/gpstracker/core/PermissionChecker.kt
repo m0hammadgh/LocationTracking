@@ -17,7 +17,7 @@ class PermissionChecker(private val context: Activity) {
         return result == PackageManager.PERMISSION_GRANTED
     }
 
-    //REQUEST FOR PERMISSSION
+    //REQUEST FOR PERMISSION
     fun requestPermission(activity: Activity, code: Int) {
 
         if (ActivityCompat.shouldShowRequestPermissionRationale(
