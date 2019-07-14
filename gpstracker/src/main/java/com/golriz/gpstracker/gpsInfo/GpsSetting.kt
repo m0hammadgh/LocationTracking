@@ -15,6 +15,7 @@ import android.provider.Settings
 import android.provider.Settings.System.AIRPLANE_MODE_ON
 import android.widget.Toast
 import com.golriz.gpstracker.core.MyNetworkStatus
+import com.golriz.gpstracker.db.repository.RoomRepository
 import java.util.*
 
 
@@ -253,6 +254,7 @@ private constructor() : LocationListener, NmeaListener, GpsStatus.Listener {
 
     fun setContext(mContext: Context) {
         AppLog.d("Setting GpsSetting Context " + mContext.applicationContext.packageName)
+        RoomRepository(mContext).checkPrePopulation()
         this.mContext = mContext.applicationContext
 
     }

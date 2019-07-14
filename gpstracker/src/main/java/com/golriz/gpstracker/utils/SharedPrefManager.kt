@@ -16,7 +16,7 @@ import com.golriz.gpstracker.utils.SettingsLocationTracker.Pref_PopulateDb
 
 class SharedPrefManager
 @SuppressLint("CommitPrefEdits")
-constructor(private val context: Context) {
+constructor(context: Context) {
 
     private var pr: SharedPreferences = context.getSharedPreferences("GpsLocationTracker", Context.MODE_PRIVATE)
 

@@ -1,21 +1,40 @@
 package com.golriz.gpstracker.core
 
+import android.content.Context
 import android.location.Location
+import android.util.Log
+import com.golriz.gpstracker.db.repository.RoomRepository
+import com.golriz.gpstracker.utils.SettingsLocationTracker
 
-class CalculateDistance(var startPoint: Location, var endPoint: Location) {
-    fun calculateDistance(): Float {
-        val locationA = Location("Start Point")
+class CalculateDistance(
+    val context: Context,
+    var currentLocation: Location,
+    private val newLocationDistance: Int?
+) {
+    fun calculateDistance() {
+        val distance = currentLocation.distanceTo(getLastInsertedLocation())
+        checkDistance(distance)
+    }
 
-        locationA.latitude = startPoint.latitude
-        locationA.longitude = startPoint.longitude
+    private fun checkDistance(distance: Float) {
+        if (distance > this.newLocationDistance!!) {
+            Log.d("distance", "distance is bigger")
+            insertToDB(currentLocation.latitude, currentLocation.longitude)
+        } else {
+            Log.d("distance", "distance is not bigger")
+        }
+    }
 
-        val locationB = Location("End Point")
+    private fun insertToDB(latitude: Double, longitude: Double) {
+        RoomRepository(context).insertTask(latitude, longitude, null)
+    }
 
-        locationB.latitude = endPoint.latitude
-        locationB.longitude = endPoint.longitude
-
-        return locationA.distanceTo(locationB)
-
+    private fun getLastInsertedLocation(): Location {
+        val lastItem = RoomRepository(context).getLasSubmittedItem()
+        val lastInsertedPoint = Location(SettingsLocationTracker.endLocation)
+        lastInsertedPoint.longitude = lastItem.longtitude!!
+        lastInsertedPoint.latitude = lastItem.latitude!!
+        return lastInsertedPoint
     }
 
 }
