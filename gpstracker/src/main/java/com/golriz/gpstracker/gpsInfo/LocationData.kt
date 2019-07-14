@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.golriz.gpstracker.gpsInfo
 
 import android.location.GpsSatellite
@@ -5,6 +7,7 @@ import android.location.Location
 import android.util.Log
 import org.apache.commons.collections4.queue.CircularFifoQueue
 
+@Suppress("DEPRECATION")
 class LocationData {
     var location: Location? = null
         set(location) {
@@ -54,14 +57,5 @@ class LocationData {
         val mSatellitesInFix = satellitesInFix
     }
 
-    companion object {
 
-        // Unit Suffixes
-        private val NOT_AVAILABLE = "N/A"
-        private val METERS_SECONDS = " m/sec"
-        private val MILLISECONDS = " ms"
-        private val DEGREES = " deg"
-        private val METRES = " m"
-        private val CONFIDENCE = " (68% confidence)"
-    }
 }

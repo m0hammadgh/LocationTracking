@@ -4,15 +4,10 @@ package com.golriz.gpstracker.utils
 
 import android.app.ActivityManager
 import android.content.Context
-import android.os.Build
 import android.util.Log
 
 
 object AppUtils {
-
-    fun hasM(): Boolean {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
-    }
 
     fun isServiceRunning(context: Context?, serviceClass: Class<*>): Boolean {
         if (context != null) {

@@ -34,13 +34,10 @@ private constructor() : LocationListener, NmeaListener, GpsStatus.Listener {
     //	}
     var gpsData: LocationData? = null
         private set
-    var networkData: LocationData? = null
-        private set
-    var passiveData: LocationData? = null
-        private set
+    private var networkData: LocationData? = null
+    private var passiveData: LocationData? = null
     // **** Network Fields
-    var networkStatus: MyNetworkStatus? = null
-        private set
+    private var networkStatus: MyNetworkStatus? = null
 
     init {
         // Initialise the location data fields
@@ -288,9 +285,9 @@ private constructor() : LocationListener, NmeaListener, GpsStatus.Listener {
     companion object {
 
         // The minimum distance to change Updates in meters
-        private val MIN_DISTANCE_CHANGE_FOR_UPDATES: Long = 0
+        private const val MIN_DISTANCE_CHANGE_FOR_UPDATES: Long = 0
         // The minimum time between updates in milliseconds
-        private val MIN_TIME_BW_UPDATES: Long = 2000
+        private const val MIN_TIME_BW_UPDATES: Long = 2000
         /**
          * @return Instance of the GpsSetting
          */

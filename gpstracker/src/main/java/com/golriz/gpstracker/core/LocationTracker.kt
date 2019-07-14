@@ -76,24 +76,29 @@ class LocationTracker(
 
 
     fun start(context: Context, appCompatActivity: AppCompatActivity): LocationTracker? {
-        validatePermissions(appCompatActivity)
-        if (FakeApplicationManager(context).init()) {
+        stopLocationService(context)
+        if (!PermissionChecker().checkPermission(appCompatActivity))
+            validatePermissions(appCompatActivity)
+        else if (FakeApplicationManager(context).init()) {
             AppLog.d("Error :  To use this service Uninstall all Fake Gps Applications First ")
             return null
-        }
-        RoomRepository(context).checkPrePopulation()
-        if (!isServiceRunning(context)) {
-            if (SharedPrefManager(context).getIsServiceRunning() == false) {
-                startLocationService(context)
-                if (this.currentLocationReceiver != null) {
-                    val intentFilter = IntentFilter(SettingsLocationTracker.ACTION_CURRENT_LOCATION_BROADCAST)
-                    intentFilter.addAction(SettingsLocationTracker.ACTION_PERMISSION_DEINED)
-                    context.registerReceiver(this.currentLocationReceiver, intentFilter)
-                }
-            }
+        } else {
 
+            RoomRepository(context).checkPrePopulation()
+            if (!isServiceRunning(context)) {
+                if (SharedPrefManager(context).getIsServiceRunning() == false) {
+                    startLocationService(context)
+                    if (this.currentLocationReceiver != null) {
+                        val intentFilter = IntentFilter(SettingsLocationTracker.ACTION_CURRENT_LOCATION_BROADCAST)
+                        intentFilter.addAction(SettingsLocationTracker.ACTION_PERMISSION_DEINED)
+                        context.registerReceiver(this.currentLocationReceiver, intentFilter)
+                    }
+                }
+
+            }
+            SharedPrefManager(context).setIsServiceRunning(true)
         }
-        SharedPrefManager(context).setIsServiceRunning(true)
+
 
         return this
     }
@@ -131,13 +136,13 @@ class LocationTracker(
     }
 
     private fun validatePermissions(appCompatActivity: AppCompatActivity) {
-        if (!PermissionChecker(appCompatActivity).checkPermission(appCompatActivity)) {
+        if (!PermissionChecker().checkPermission(appCompatActivity)) {
             askPermissions(appCompatActivity)
         }
     }
 
     private fun askPermissions(appCompatActivity: AppCompatActivity) {
-        PermissionChecker(appCompatActivity)
+        PermissionChecker()
             .requestPermission(appCompatActivity, PERMISSION_ACCESS_LOCATION_CODE)
     }
 

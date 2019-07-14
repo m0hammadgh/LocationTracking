@@ -2,16 +2,11 @@ package com.golriz.gpstracker.gpsInfo
 
 import java.text.DecimalFormat
 
-/**
- * Class for storing constants used throughout the app
- *
- * @author Michael Fotiadis
- */
 object GpsInfoConstants {
 
     val df = DecimalFormat("#.00")
     val LINE_SEPARATOR = System.getProperty("line.separator")
-    val ACTION_AIRPLANE_MODE = "android.intent.action.AIRPLANE_MODE"
+    const val ACTION_AIRPLANE_MODE = "android.intent.action.AIRPLANE_MODE"
 
     enum class Broadcasts(val string: String) {
         BROADCAST_NETWORK_STATE_CHANGED("Brodacast_1"), // Network State Changed

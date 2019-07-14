@@ -7,8 +7,7 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
-class PermissionChecker(private val context: Activity) {
-    private val TAG_PERMISSION_CODE = 8585
+class PermissionChecker {
 
 
     //  CHECK FOR LOCATION PERMISSION
