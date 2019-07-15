@@ -7,5 +7,7 @@ class SharePrefSettings {
     var syncToServerInterval: Long = 60000
     var distanceFromLastPoint: Int = 5
     var syncItemCount: Int = 10
+    var notificationTitle = "دستیار گلریز"
+    var notificationText = "دستیار گلریز"
 
 }

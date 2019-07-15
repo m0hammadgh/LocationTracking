@@ -2,6 +2,7 @@ package com.golriz.gpstracker.utils
 
 
 object SettingsLocationTracker {
+    const val databaseName = "db_Locations"
 
     const val PERMISSION_ACCESS_LOCATION_CODE = 99
     const val Pref_Action = "ACTION"
@@ -13,6 +14,7 @@ object SettingsLocationTracker {
     const val PrefIsUsingWifi = "NETWORK"
     const val Pref_PopulateDb = "Populate DB"
     const val PrefIsServiceRunning = "running_service"
+    const val TAG = "Location Tracker"
 
 
     const val NotificationTitle = "گلریز"

@@ -7,12 +7,12 @@ import androidx.lifecycle.LiveData
 import androidx.room.Room
 import com.golriz.gpstracker.db.db.UserDatabase
 import com.golriz.gpstracker.db.model.UserCurrentLocation
+import com.golriz.gpstracker.utils.SettingsLocationTracker.databaseName
 
 class RoomRepository(private val context: Context) {
 
-    private val DB_NAME = "db_task"
 
-    private val noteDatabase: UserDatabase
+    private val noteDatabase: UserDatabase = Room.databaseBuilder(context, UserDatabase::class.java, databaseName).build()
 
 
     //
@@ -23,16 +23,11 @@ class RoomRepository(private val context: Context) {
     val tasks: LiveData<List<UserCurrentLocation>>
         get() = noteDatabase.daoAccess().allLocation
 
-    init {
-        noteDatabase = Room.databaseBuilder(context, UserDatabase::class.java, DB_NAME).build()
-
-    }
-
 
     fun insertTask(
-        latitude: Double?,
-        longitude: Double?,
-        isSynced: Boolean?
+            latitude: Double?,
+            longitude: Double?,
+            isSynced: Boolean?
     ) {
 
         val note = UserCurrentLocation()

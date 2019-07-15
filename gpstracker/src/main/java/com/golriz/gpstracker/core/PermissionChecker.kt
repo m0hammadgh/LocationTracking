@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.golriz.gpstracker.utils.SettingsLocationTracker.PERMISSION_ACCESS_LOCATION_CODE
 
 class PermissionChecker {
 
@@ -13,22 +14,27 @@ class PermissionChecker {
     //  CHECK FOR LOCATION PERMISSION
     fun checkPermission(activity: Activity): Boolean {
         val result = ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION)
-        return result == PackageManager.PERMISSION_GRANTED
+        if (result == PackageManager.PERMISSION_GRANTED) {
+            return true
+        } else {
+            requestPermission(activity, PERMISSION_ACCESS_LOCATION_CODE)
+            return false
+        }
     }
 
     //REQUEST FOR PERMISSION
-    fun requestPermission(activity: Activity, code: Int) {
+    private fun requestPermission(activity: Activity, code: Int) {
 
         if (ActivityCompat.shouldShowRequestPermissionRationale(
-                activity,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            )
+                        activity,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                )
         ) {
 
             Toast.makeText(
-                activity,
-                "GPS permission ",
-                Toast.LENGTH_LONG
+                    activity,
+                    "GPS permission ",
+                    Toast.LENGTH_LONG
             ).show()
 
         } else {

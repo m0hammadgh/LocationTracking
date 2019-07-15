@@ -7,9 +7,9 @@ import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
 import com.golriz.gpstracker.model.SharePrefSettings
+import com.golriz.gpstracker.utils.LocationSharePrefUtil
 import com.golriz.gpstracker.utils.NotificationCreator
 import com.golriz.gpstracker.utils.SettingsLocationTracker.startLocation
-import com.golriz.gpstracker.utils.SharedPrefManager
 import com.golriz.gpstracker.utils.StoreLocationManager
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
@@ -18,7 +18,6 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import java.util.*
 
-@Suppress("DEPRECATION")
 class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
     LocationListener {
 
@@ -28,7 +27,7 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
     private lateinit var locationRequest: LocationRequest
     private var currentLocation: Location? = null
     var sharePrefSettings = SharePrefSettings()
-    private var prefManager: SharedPrefManager? = null
+    private var prefUtil: LocationSharePrefUtil? = null
 
 
     //endregion
@@ -36,7 +35,7 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
 
     override fun onCreate() {
         super.onCreate()
-        prefManager = SharedPrefManager(baseContext)  // init Shared Pref Manager
+        prefUtil = LocationSharePrefUtil(baseContext)  // init Shared Pref Manager
     }
 
 
@@ -94,7 +93,7 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
             val currentPoint = Location(startLocation)
             currentPoint.latitude = currentLocation!!.latitude
             currentPoint.longitude = this.currentLocation!!.longitude
-            CalculateDistance(baseContext, currentPoint, prefManager).calculateDistance()
+            CalculateDistance(baseContext, currentPoint, prefUtil).calculateDistance()
 
             Log.d("Info: ", "calculating distance")
         }

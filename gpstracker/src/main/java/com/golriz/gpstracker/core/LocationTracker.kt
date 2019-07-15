@@ -10,16 +10,17 @@ import com.golriz.gpstracker.FakeTracker.AuthorityChecker
 import com.golriz.gpstracker.broadCast.GlobalBus
 import com.golriz.gpstracker.enums.FakeMode
 import com.golriz.gpstracker.enums.GpsModes
+import com.golriz.gpstracker.enums.LocationSharedPrefEnums
 import com.golriz.gpstracker.gpsInfo.GpsInfo
 import com.golriz.gpstracker.model.SharePrefSettings
-import com.golriz.gpstracker.utils.SettingsLocationTracker.PERMISSION_ACCESS_LOCATION_CODE
-import com.golriz.gpstracker.utils.SharedPrefManager
+import com.golriz.gpstracker.utils.LocationSharePrefUtil
+import com.golriz.gpstracker.utils.SettingsLocationTracker.TAG
 import com.golriz.gpstracker.utils.StoreLocationManager
 import java.io.Serializable
 
 
 class LocationTracker(
-    private val subscriber: AppCompatActivity
+        private val subscriber: AppCompatActivity
 
 ) : Serializable {
     private var mBothPermissionRequest: PermissionUtil.PermissionRequestObject? = null
@@ -61,12 +62,23 @@ class LocationTracker(
 
     }
 
+    fun setnotificationTitle(title: String): LocationTracker {
+        sharedPrefSetting.notificationTitle = title
+        return this
+    }
+
+    fun setnotificationText(text: String): LocationTracker {
+        sharedPrefSetting.notificationText = text
+        return this
+    }
+
+
     fun start(context: Context, appCompatActivity: Activity): LocationTracker? {
-        if (!PermissionChecker().checkPermission(appCompatActivity))
-            validatePermissions(appCompatActivity)
-        else if (AuthorityChecker(context).check() != FakeMode.None) {
+        if (!PermissionChecker().checkPermission(appCompatActivity)) {
+            Log.d(TAG, "Permission denied")
+        } else if (AuthorityChecker(context).check() != FakeMode.None) {
             Log.d(
-                    "Failed ... ",
+                    TAG,
                     "Error :  To use this service YOU MUST Uninstall all Fake Gps Applications or Turn off Developer option "
             )
             return null
@@ -79,10 +91,12 @@ class LocationTracker(
     }
 
     private fun startLocationService(context: Context) {
-        SharedPrefManager(context).setIsServiceRunning(true)
-        val serviceIntent = Intent(context, LocationService::class.java)
+        LocationSharePrefUtil(context).saveToSharedPref(LocationSharedPrefEnums.IsServiceRunning, true)
         saveSettingsToSharedPreferences(context)
+        //Start service
+        val serviceIntent = Intent(context, LocationService::class.java)
         context.startService(serviceIntent)
+        //Register Event Bus if is not subscribed
         if (GlobalBus.bus?.isRegistered(subscriber) == false) {
             try {
                 GlobalBus.bus?.register(subscriber)
@@ -97,27 +111,17 @@ class LocationTracker(
 
     private fun isServiceRunning(context: Context): Boolean {
 
-        return SharedPrefManager(context).getIsServiceRunning()!!
+        return LocationSharePrefUtil(context).getLocationItem(LocationSharedPrefEnums.IsServiceRunning, false) as Boolean
 
     }
 
 
     fun stopLocationService(context: Context) {
-        SharedPrefManager(context).setIsServiceRunning(false)
+        LocationSharePrefUtil(context).saveToSharedPref(LocationSharedPrefEnums.IsServiceRunning, false)
         val serviceIntent = Intent(context, LocationService::class.java)
         context.stopService(serviceIntent)
     }
 
-    private fun validatePermissions(appCompatActivity: Activity) {
-        if (!PermissionChecker().checkPermission(appCompatActivity)) {
-            askPermissions(appCompatActivity)
-        }
-    }
-
-    private fun askPermissions(appCompatActivity: Activity) {
-        PermissionChecker()
-            .requestPermission(appCompatActivity, PERMISSION_ACCESS_LOCATION_CODE)
-    }
 
     fun onRequestPermission(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         if (null != mBothPermissionRequest) {

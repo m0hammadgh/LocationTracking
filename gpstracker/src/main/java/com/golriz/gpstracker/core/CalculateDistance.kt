@@ -3,18 +3,20 @@ package com.golriz.gpstracker.core
 import android.content.Context
 import android.location.Location
 import com.golriz.gpstracker.db.repository.RoomRepository
+import com.golriz.gpstracker.enums.LocationSharedPrefEnums.DistanceFromLastPoint
+import com.golriz.gpstracker.enums.LocationSharedPrefEnums.IsInsertedToDb
+import com.golriz.gpstracker.utils.LocationSharePrefUtil
 import com.golriz.gpstracker.utils.SettingsLocationTracker
-import com.golriz.gpstracker.utils.SharedPrefManager
 
 class CalculateDistance(
         val context: Context,
         var currentLocation: Location,
-        private val prefManager: SharedPrefManager?
+        private val prefUtil: LocationSharePrefUtil?
 ) {
     fun calculateDistance() {
-        if (prefManager?.getIsInsertedItem == false) {
+        if (prefUtil?.getLocationItem(IsInsertedToDb, true) == false) {
             insertToDB(currentLocation.latitude, currentLocation.longitude)
-            prefManager.setIsInsertedDb(true)
+            prefUtil.saveToSharedPref(IsInsertedToDb, true)
         } else {
             val distance = currentLocation.distanceTo(getLastInsertedLocation())
             checkDistance(distance)
@@ -23,7 +25,7 @@ class CalculateDistance(
     }
 
     private fun checkDistance(distance: Float) {
-        if (distance > this.prefManager?.getNewLocationDistance!!) {
+        if (distance > this.prefUtil?.getLocationItem(DistanceFromLastPoint, 10) as Int) {
             insertToDB(currentLocation.latitude, currentLocation.longitude)
         }
     }
