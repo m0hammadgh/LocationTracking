@@ -2,26 +2,29 @@ package com.golriz.gpstracker.core
 
 import android.content.Context
 import android.location.Location
-import android.util.Log
 import com.golriz.gpstracker.db.repository.RoomRepository
 import com.golriz.gpstracker.utils.SettingsLocationTracker
+import com.golriz.gpstracker.utils.SharedPrefManager
 
 class CalculateDistance(
-    val context: Context,
-    var currentLocation: Location,
-    private val newLocationDistance: Int?
+        val context: Context,
+        var currentLocation: Location,
+        private val prefManager: SharedPrefManager?
 ) {
     fun calculateDistance() {
-        val distance = currentLocation.distanceTo(getLastInsertedLocation())
-        checkDistance(distance)
+        if (prefManager?.getIsInsertedItem == false) {
+            insertToDB(currentLocation.latitude, currentLocation.longitude)
+            prefManager.setIsInsertedDb(true)
+        } else {
+            val distance = currentLocation.distanceTo(getLastInsertedLocation())
+            checkDistance(distance)
+
+        }
     }
 
     private fun checkDistance(distance: Float) {
-        if (distance > this.newLocationDistance!!) {
-            Log.d("distance", "distance is bigger")
+        if (distance > this.prefManager?.getNewLocationDistance!!) {
             insertToDB(currentLocation.latitude, currentLocation.longitude)
-        } else {
-            Log.d("distance", "distance is not bigger")
         }
     }
 

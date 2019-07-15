@@ -31,7 +31,6 @@ constructor(context: Context) {
     fun setIsUsingGps(state: Boolean?) {
         editor?.putBoolean(PrefIsUsingGps, state!!)
         editor?.apply()
-        editor?.commit()
 
     }
 
@@ -43,7 +42,6 @@ constructor(context: Context) {
     fun setIsUsingWifi(state: Boolean?) {
         editor?.putBoolean(PrefIsUsingWifi, state!!)
         editor?.apply()
-        editor?.commit()
 
     }
 
@@ -101,10 +99,10 @@ constructor(context: Context) {
     }
 
     /******* Is DB populated ******/
-    val getIsPopulatedDb: Boolean?
+    val getIsInsertedItem: Boolean?
         get() = pr.getBoolean(Pref_PopulateDb, false)
 
-    fun setDBPopulated(state: Boolean) {
+    fun setIsInsertedDb(state: Boolean) {
         editor?.putBoolean(Pref_PopulateDb, state)
         editor?.apply()
 

@@ -7,7 +7,6 @@ import androidx.lifecycle.LiveData
 import androidx.room.Room
 import com.golriz.gpstracker.db.db.UserDatabase
 import com.golriz.gpstracker.db.model.UserCurrentLocation
-import com.golriz.gpstracker.utils.SharedPrefManager
 
 class RoomRepository(private val context: Context) {
 
@@ -26,6 +25,7 @@ class RoomRepository(private val context: Context) {
 
     init {
         noteDatabase = Room.databaseBuilder(context, UserDatabase::class.java, DB_NAME).build()
+
     }
 
 
@@ -66,12 +66,10 @@ class RoomRepository(private val context: Context) {
     }
 
     fun getLasSubmittedRecord(): LiveData<UserCurrentLocation> {
-        checkPrePopulation()
         return noteDatabase.daoAccess().getLastItem()
     }
 
     fun getLasSubmittedItem(): UserCurrentLocation {
-        checkPrePopulation()
         return GetNotesAsyncTask().execute().get()
 
     }
@@ -91,14 +89,5 @@ class RoomRepository(private val context: Context) {
 
     }
 
-
-    fun checkPrePopulation() {
-        val appPreferences = SharedPrefManager(context)
-        if (appPreferences.getIsPopulatedDb == false) {
-            insertTask(0.0, 0.0, true)
-            appPreferences.setDBPopulated(true)
-
-        }
-    }
 
 }

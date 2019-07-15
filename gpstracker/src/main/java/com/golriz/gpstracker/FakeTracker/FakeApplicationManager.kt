@@ -5,21 +5,18 @@ import android.content.pm.PackageManager
 
 
 class FakeApplicationManager(val context: Context) {
-    fun init(): Boolean {
-        val applicationPackages = FakePackagesConfig().getPackages()
+    fun checkForApps(): Boolean {
         val pm = context.packageManager
-        for (s: String in applicationPackages) {
+        for (s: String in FakePackagesConfig().getPackages()) {
             if (isPackageInstalled(s, pm))
                 return true
         }
         return false
     }
 
+
     private fun isPackageInstalled(packageName: String, packageManager: PackageManager): Boolean {
-
-
         var found = true
-
         try {
 
             packageManager.getPackageInfo(packageName, 0)
@@ -27,7 +24,6 @@ class FakeApplicationManager(val context: Context) {
 
             found = false
         }
-
         return found
     }
 }

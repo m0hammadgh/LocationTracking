@@ -4,10 +4,6 @@ package com.golriz.gpstracker.utils
 object SettingsLocationTracker {
 
     const val PERMISSION_ACCESS_LOCATION_CODE = 99
-    const val LOCATION_MESSAGE = "LOCATION_DATA"
-    const val ACTION_CURRENT_LOCATION_BROADCAST = "current.location"
-    const val ACTION_PERMISSION_DEINED = "location.denied"
-    const val TAG = "Location Tracker"
     const val Pref_Action = "ACTION"
     const val PrefNewLocationInterval = "LOCATION_INTERVAL"
     const val PrefDistanceBetweenLastPoint = "LOCATION_Distance"
@@ -26,8 +22,9 @@ object SettingsLocationTracker {
 
     const val startLocation = "StartPoint"
     const val endLocation = "EndPoint"
+
+    const val timeThreadName = "Default_timer_task"
     ///
-    const val actionReceiverName = "ActionReceiver"
 
 
 }

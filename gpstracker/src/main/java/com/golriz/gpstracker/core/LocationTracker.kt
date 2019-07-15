@@ -1,19 +1,20 @@
 package com.golriz.gpstracker.core
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.github.kayvannj.permission_utils.PermissionUtil
-import com.golriz.gpstracker.FakeTracker.FakeApplicationManager
+import com.golriz.gpstracker.FakeTracker.AuthorityChecker
 import com.golriz.gpstracker.broadCast.GlobalBus
+import com.golriz.gpstracker.enums.FakeMode
 import com.golriz.gpstracker.enums.GpsModes
 import com.golriz.gpstracker.gpsInfo.GpsInfo
-import com.golriz.gpstracker.gpsInfo.GpsSetting
 import com.golriz.gpstracker.model.SharePrefSettings
 import com.golriz.gpstracker.utils.SettingsLocationTracker.PERMISSION_ACCESS_LOCATION_CODE
-import com.golriz.gpstracker.utils.SharePrefSaver
 import com.golriz.gpstracker.utils.SharedPrefManager
+import com.golriz.gpstracker.utils.StoreLocationManager
 import java.io.Serializable
 
 
@@ -29,13 +30,13 @@ class LocationTracker(
         return this
     }
 
-    fun setOnlyGpsMode(gps: Boolean?): LocationTracker {
+    fun setOnlyGpsMode(gps: Boolean): LocationTracker {
         sharedPrefSetting.isGpsMode = gps
         return this
     }
 
-    fun setHighAccuracyMode(netWork: Boolean?): LocationTracker {
-        sharedPrefSetting.isHighAccuracyMode = netWork
+    fun setHighAccuracyMode(isUsingWifi: Boolean): LocationTracker {
+        sharedPrefSetting.isHighAccuracyMode = isUsingWifi
         return this
     }
 
@@ -54,16 +55,22 @@ class LocationTracker(
         return this
     }
 
+    fun getGpsStatus(context: Context): GpsModes {
+        val gpsInfo = GpsInfo(context)
+        return gpsInfo.currentGpsInfo()
 
-    fun start(context: Context, appCompatActivity: AppCompatActivity): LocationTracker? {
+    }
+
+    fun start(context: Context, appCompatActivity: Activity): LocationTracker? {
         if (!PermissionChecker().checkPermission(appCompatActivity))
             validatePermissions(appCompatActivity)
-        else if (FakeApplicationManager(context).init()) {
-            Log.d("Failed ... ", "Error :  To use this service YOU MUST Uninstall all Fake Gps Applications ")
+        else if (AuthorityChecker(context).check() != FakeMode.None) {
+            Log.d(
+                    "Failed ... ",
+                    "Error :  To use this service YOU MUST Uninstall all Fake Gps Applications or Turn off Developer option "
+            )
             return null
         } else {
-
-
             if (!isServiceRunning(context)) {
                 startLocationService(context)
             }
@@ -76,12 +83,15 @@ class LocationTracker(
         val serviceIntent = Intent(context, LocationService::class.java)
         saveSettingsToSharedPreferences(context)
         context.startService(serviceIntent)
+        if (GlobalBus.bus?.isRegistered(subscriber) == false) {
+            try {
+                GlobalBus.bus?.register(subscriber)
 
-        try {
-            GlobalBus.bus?.register(subscriber)
+            } catch (e: Exception) {
+            }
 
-        } catch (e: Exception) {
         }
+
 
     }
 
@@ -98,13 +108,13 @@ class LocationTracker(
         context.stopService(serviceIntent)
     }
 
-    private fun validatePermissions(appCompatActivity: AppCompatActivity) {
+    private fun validatePermissions(appCompatActivity: Activity) {
         if (!PermissionChecker().checkPermission(appCompatActivity)) {
             askPermissions(appCompatActivity)
         }
     }
 
-    private fun askPermissions(appCompatActivity: AppCompatActivity) {
+    private fun askPermissions(appCompatActivity: Activity) {
         PermissionChecker()
             .requestPermission(appCompatActivity, PERMISSION_ACCESS_LOCATION_CODE)
     }
@@ -116,18 +126,8 @@ class LocationTracker(
     }
 
     private fun saveSettingsToSharedPreferences(context: Context) {
-        SharePrefSaver(sharedPrefSetting, context).saveToSharePref()
+        StoreLocationManager(sharedPrefSetting, context).saveLocationSettings()
     }
 
-
-    fun gpsStatus(context: Context): GpsModes {
-        val gpsInfo = GpsInfo(context)
-        return gpsInfo.currentGpsInfo()
-
-    }
-
-    private fun getConnectedSattelites(): Int? {
-        return GpsSetting.instance?.gpsData?.satellitesSize
-    }
 
 }

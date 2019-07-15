@@ -12,52 +12,61 @@ import com.golriz.gpstracker.R
 
 @Suppress("DEPRECATION")
 class NotificationCreator(val context: Context, private val service: Service) {
-    fun createNotification() {
+    fun createForeGroundService() {
         val mBuilder = Builder(
             context
         )
+        service.startForeground(1, createNotification(mBuilder))
+    }
+
+    private fun createNotification(mBuilder: Builder): Notification {
         val notification: Notification?
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             notification = mBuilder.setSmallIcon(R.drawable.ic_launcher).setTicker("Tracking").setWhen(0)
-                .setAutoCancel(false)
-                .setCategory(Notification.EXTRA_BIG_TEXT)
-                .setContentTitle(SettingsLocationTracker.NotificationTitle)
-                .setContentText(SettingsLocationTracker.NotificationText)
-                .setColor(ContextCompat.getColor(context, R.color.red))
-                .setStyle(
-                    Notification.BigTextStyle()
-                        .bigText(SettingsLocationTracker.NotificationText)
-                )
-                .setChannelId(SettingsLocationTracker.NotificationChannelId)
-                .setShowWhen(true)
-                .setOngoing(true)
-                .build()
-        } else {
-            notification =
-                mBuilder.setSmallIcon(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) R.drawable.ic_launcher else R.drawable.ic_launcher)
-                    .setTicker(SettingsLocationTracker.NotificationTicker).setWhen(0)
                     .setAutoCancel(false)
+                    .setCategory(Notification.EXTRA_BIG_TEXT)
                     .setContentTitle(SettingsLocationTracker.NotificationTitle)
                     .setContentText(SettingsLocationTracker.NotificationText)
+                    .setColor(ContextCompat.getColor(context, R.color.red))
                     .setStyle(
-                        Notification.BigTextStyle()
-                            .bigText(SettingsLocationTracker.NotificationText)
+                            Notification.BigTextStyle()
+                                    .bigText(SettingsLocationTracker.NotificationText)
                     )
+                    .setChannelId(SettingsLocationTracker.NotificationChannelId)
+                    .setShowWhen(true)
                     .setOngoing(true)
                     .build()
+        } else {
+            notification =
+                    mBuilder.setSmallIcon(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) R.drawable.ic_launcher else R.drawable.ic_launcher)
+                            .setTicker(SettingsLocationTracker.NotificationTicker).setWhen(0)
+                            .setAutoCancel(false)
+                            .setContentTitle(SettingsLocationTracker.NotificationTitle)
+                            .setContentText(SettingsLocationTracker.NotificationText)
+                            .setStyle(
+                                    Notification.BigTextStyle()
+                                            .bigText(SettingsLocationTracker.NotificationText)
+                            )
+                            .setOngoing(true)
+                            .build()
         }
+        createNotificationChannel()
+
+        return notification
+    }
+
+    private fun createNotificationChannel() {
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val mChannel =
-                NotificationChannel(
-                    SettingsLocationTracker.NotificationChannelId,
-                    SettingsLocationTracker.NotificationTicker,
-                    NotificationManager.IMPORTANCE_HIGH
-                )
+                    NotificationChannel(
+                            SettingsLocationTracker.NotificationChannelId,
+                            SettingsLocationTracker.NotificationTicker,
+                            NotificationManager.IMPORTANCE_HIGH
+                    )
             notificationManager.createNotificationChannel(mChannel)
         }
-        /*assert notificationManager != null;
-        notificationManager.notify(0, notification);*/
-        service.startForeground(1, notification) //for foreground service, don't use 0 as id. it will not work.
     }
+
+
 }

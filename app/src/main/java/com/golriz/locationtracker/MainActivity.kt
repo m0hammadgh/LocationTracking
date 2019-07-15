@@ -1,11 +1,12 @@
 package com.golriz.locationtracker
 
+import android.annotation.SuppressLint
 import android.os.Bundle
+import android.text.TextUtils
 import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
 import com.golriz.gpstracker.broadCast.Events
 import com.golriz.gpstracker.core.LocationTracker
-import com.golriz.gpstracker.gpsInfo.GpsSetting
 import com.golriz.gpstracker.utils.SettingsLocationTracker.PERMISSION_ACCESS_LOCATION_CODE
 import kotlinx.android.synthetic.main.activity_main.*
 import org.greenrobot.eventbus.Subscribe
@@ -16,34 +17,47 @@ class MainActivity : AppCompatActivity() {
 
 
     var locationTracker: LocationTracker? = null
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_main)
-        init()
+
 
 
         btnStop.setOnClickListener {
-
+            init()
             locationTracker?.start(baseContext, this)
         }
 
         btnStart.setOnClickListener {
             stopService()
+            tvGpsMode.text = ""
         }
 
 
     }
 
+    @SuppressLint("SetTextI18n")
     private fun init() {
-        locationTracker = LocationTracker(this)
-            .setNewPointInterval(1000)
-            .setOnlyGpsMode(true)
-            .setMinDistanceBetweenLocations(1)
-            .setCountOfSyncItems(20)
-            .setSyncToServerInterval(100000)
-            .setHighAccuracyMode(true)
+        if (validate()) {
+            locationTracker = LocationTracker(this)
+                    .setNewPointInterval(edtInterval.text.toString().toLong())
+                    .setOnlyGpsMode(true)
+                    .setMinDistanceBetweenLocations(edtMinDistance.text.toString().toInt())
+                    .setCountOfSyncItems(edtSyncCount.text.toString().toInt())
+                    .setSyncToServerInterval(edtSynInterval.text.toString().toLong())
+                    .setHighAccuracyMode(true)
+            tvGpsMode.text = "Current Gps status : ${locationTracker?.getGpsStatus(this)}"
 
+        }
+
+    }
+
+    private fun validate(): Boolean {
+        return !TextUtils.isEmpty(edtInterval.text) && !TextUtils.isEmpty(edtMinDistance.text) && !TextUtils.isEmpty(
+                edtSynInterval.text
+        ) && !TextUtils.isEmpty(edtSyncCount.text)
     }
 
 
@@ -58,7 +72,7 @@ class MainActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PERMISSION_ACCESS_LOCATION_CODE) {
             (locationTracker?.start(baseContext, this))
-            GpsSetting.instance?.startCollectingLocationData()
+
 
         }
 

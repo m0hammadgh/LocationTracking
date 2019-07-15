@@ -10,6 +10,7 @@ import com.golriz.gpstracker.model.SharePrefSettings
 import com.golriz.gpstracker.utils.NotificationCreator
 import com.golriz.gpstracker.utils.SettingsLocationTracker.startLocation
 import com.golriz.gpstracker.utils.SharedPrefManager
+import com.golriz.gpstracker.utils.StoreLocationManager
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationListener
@@ -44,16 +45,12 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
         buildGoogleApiClient()
         calculateSyncInterval()
         /******/
-        NotificationCreator(baseContext, this).createNotification()
+        NotificationCreator(baseContext, this).createForeGroundService()
         return START_STICKY
     }
 
     private fun readFromSharedPref() {
-        this.sharePrefSettings.syncToServerInterval = prefManager?.getSyncInterval!!
-        this.sharePrefSettings.syncItemCount = prefManager?.getSyncItemCount!!
-        this.sharePrefSettings.interval = prefManager?.getNewLocationInterval!!
-        this.sharePrefSettings.isGpsMode = prefManager?.getIsUsingGps
-        this.sharePrefSettings.isHighAccuracyMode = prefManager?.getIsUsingWifi
+        this.sharePrefSettings = StoreLocationManager(sharePrefSettings, baseContext).readLocationSettings()
     }
 
     @Synchronized
@@ -75,10 +72,9 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
     private fun createLocationRequest() { //start location update based on interval
         locationRequest = LocationRequest()
         locationRequest.interval = this.sharePrefSettings.interval
-        locationRequest.fastestInterval = this.sharePrefSettings.interval / 2
-        if (this.sharePrefSettings.isHighAccuracyMode!!) {
+        if (this.sharePrefSettings.isHighAccuracyMode) {
             locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        } else if (this.sharePrefSettings.isGpsMode!!) {
+        } else if (this.sharePrefSettings.isGpsMode) {
             locationRequest.priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
         }
     }
@@ -98,7 +94,7 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
             val currentPoint = Location(startLocation)
             currentPoint.latitude = currentLocation!!.latitude
             currentPoint.longitude = this.currentLocation!!.longitude
-            CalculateDistance(baseContext, currentPoint, prefManager?.getNewLocationDistance).calculateDistance()
+            CalculateDistance(baseContext, currentPoint, prefManager).calculateDistance()
 
             Log.d("Info: ", "calculating distance")
         }
