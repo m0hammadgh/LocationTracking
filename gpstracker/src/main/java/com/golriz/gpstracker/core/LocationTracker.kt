@@ -6,21 +6,21 @@ import android.content.Intent
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.github.kayvannj.permission_utils.PermissionUtil
-import com.golriz.gpstracker.FakeTracker.AuthorityChecker
 import com.golriz.gpstracker.broadCast.GlobalBus
 import com.golriz.gpstracker.enums.FakeMode
 import com.golriz.gpstracker.enums.GpsModes
 import com.golriz.gpstracker.enums.LocationSharedPrefEnums
+import com.golriz.gpstracker.fakeTracker.PrivilegeChecker
 import com.golriz.gpstracker.gpsInfo.GpsInfo
 import com.golriz.gpstracker.model.SharePrefSettings
+import com.golriz.gpstracker.utils.LocationDbUtil
+import com.golriz.gpstracker.utils.LocationSettings.TAG
 import com.golriz.gpstracker.utils.LocationSharePrefUtil
-import com.golriz.gpstracker.utils.SettingsLocationTracker.TAG
-import com.golriz.gpstracker.utils.StoreLocationManager
 import java.io.Serializable
 
 
 class LocationTracker(
-        private val subscriber: AppCompatActivity
+    private val subscriber: AppCompatActivity
 
 ) : Serializable {
     private var mBothPermissionRequest: PermissionUtil.PermissionRequestObject? = null
@@ -62,24 +62,24 @@ class LocationTracker(
 
     }
 
-    fun setnotificationTitle(title: String): LocationTracker {
+    fun setNotificationTitle(title: String): LocationTracker {
         sharedPrefSetting.notificationTitle = title
         return this
     }
 
-    fun setnotificationText(text: String): LocationTracker {
+    fun setNotificationText(text: String): LocationTracker {
         sharedPrefSetting.notificationText = text
         return this
     }
 
 
     fun start(context: Context, appCompatActivity: Activity): LocationTracker? {
-        if (!PermissionChecker().checkPermission(appCompatActivity)) {
+        if (!CheckPermission().checkPermission(appCompatActivity)) {
             Log.d(TAG, "Permission denied")
-        } else if (AuthorityChecker(context).check() != FakeMode.None) {
+        } else if (PrivilegeChecker(context).check() != FakeMode.None) {
             Log.d(
-                    TAG,
-                    "Error :  To use this service YOU MUST Uninstall all Fake Gps Applications or Turn off Developer option "
+                TAG,
+                "Error :  To use this service YOU MUST Uninstall all Fake Gps Applications or Turn off Developer option "
             )
             return null
         } else {
@@ -93,10 +93,16 @@ class LocationTracker(
     private fun startLocationService(context: Context) {
         LocationSharePrefUtil(context).saveToSharedPref(LocationSharedPrefEnums.IsServiceRunning, true)
         saveSettingsToSharedPreferences(context)
-        //Start service
+
         val serviceIntent = Intent(context, LocationService::class.java)
         context.startService(serviceIntent)
-        //Register Event Bus if is not subscribed
+
+        registerEventBus()
+
+
+    }
+
+    private fun registerEventBus() {
         if (GlobalBus.bus?.isRegistered(subscriber) == false) {
             try {
                 GlobalBus.bus?.register(subscriber)
@@ -105,13 +111,14 @@ class LocationTracker(
             }
 
         }
-
-
     }
 
     private fun isServiceRunning(context: Context): Boolean {
 
-        return LocationSharePrefUtil(context).getLocationItem(LocationSharedPrefEnums.IsServiceRunning, false) as Boolean
+        return LocationSharePrefUtil(context).getLocationItem(
+            LocationSharedPrefEnums.IsServiceRunning,
+            false
+        ) as Boolean
 
     }
 
@@ -130,7 +137,7 @@ class LocationTracker(
     }
 
     private fun saveSettingsToSharedPreferences(context: Context) {
-        StoreLocationManager(sharedPrefSetting, context).saveLocationSettings()
+        LocationDbUtil(sharedPrefSetting, context).saveLocationSettings()
     }
 
 

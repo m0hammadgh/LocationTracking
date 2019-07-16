@@ -9,8 +9,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.golriz.gpstracker.broadCast.Events
 import com.golriz.gpstracker.core.LocationTracker
 import com.golriz.gpstracker.enums.LocationSharedPrefEnums
+import com.golriz.gpstracker.utils.LocationSettings.PERMISSION_ACCESS_LOCATION_CODE
 import com.golriz.gpstracker.utils.LocationSharePrefUtil
-import com.golriz.gpstracker.utils.SettingsLocationTracker.PERMISSION_ACCESS_LOCATION_CODE
 import kotlinx.android.synthetic.main.activity_main.*
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
