@@ -1,22 +1,24 @@
 package com.golriz.gpstracker.core
 
+import android.annotation.SuppressLint
 import android.app.Service
 import android.content.Intent
 import android.location.Location
 import android.os.Bundle
 import android.os.IBinder
+import android.os.Looper
 import android.util.Log
 import com.golriz.gpstracker.model.SharePrefSettings
 import com.golriz.gpstracker.utils.LocationSharePrefUtil
 import com.golriz.gpstracker.utils.NotificationCreator
+import com.golriz.gpstracker.utils.SettingsLocationTracker
 import com.golriz.gpstracker.utils.SettingsLocationTracker.startLocation
 import com.golriz.gpstracker.utils.StoreLocationManager
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
-import com.google.android.gms.location.LocationListener
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.*
 import java.util.*
+
 
 class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
     LocationListener {
@@ -29,6 +31,8 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
     var sharePrefSettings = SharePrefSettings()
     private var prefUtil: LocationSharePrefUtil? = null
 
+    private var mLocationCallback: LocationCallback? = null
+    private lateinit var mFusedLocationClient: FusedLocationProviderClient
 
     //endregion
 
@@ -36,13 +40,28 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
     override fun onCreate() {
         super.onCreate()
         prefUtil = LocationSharePrefUtil(baseContext)  // init Shared Pref Manager
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        initLocationCallback()
+
     }
 
+    private fun initLocationCallback() {
+        mLocationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult?) {
+                super.onLocationResult(locationResult)
+                currentLocation = locationResult?.lastLocation
+                updateService()
+            }
+        }
+    }
 
+    @SuppressLint("MissingPermission")
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         readFromSharedPref()
         buildGoogleApiClient()
         calculateSyncInterval()
+
+
         /******/
         NotificationCreator(baseContext, this).createForeGroundService()
         return START_STICKY
@@ -70,7 +89,9 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
 
     private fun createLocationRequest() { //start location update based on interval
         locationRequest = LocationRequest()
+
         locationRequest.interval = this.sharePrefSettings.interval
+
         if (this.sharePrefSettings.isHighAccuracyMode) {
             locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         } else if (this.sharePrefSettings.isGpsMode) {
@@ -80,10 +101,13 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
 
     private fun startLocationUpdates() {
         try {
-            if (googleApiClient.isConnected) {
-                LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this)
-            }
-        } catch (ex: SecurityException) {
+            mFusedLocationClient.requestLocationUpdates(
+                locationRequest,
+                mLocationCallback!!, Looper.myLooper()
+            )
+        } catch (unlikely: SecurityException) {
+
+            Log.e(TAG, "Lost location permission. Could not request updates. $unlikely")
         }
 
     }
@@ -100,10 +124,17 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
     }
 
     private fun stopLocationUpdates() {
-        if (googleApiClient.isConnected) {
-            LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this)
+
+        Log.i(TAG, "Removing location updates")
+        try {
+            mFusedLocationClient.removeLocationUpdates(mLocationCallback!!)
+            stopSelf()
+            stopForeground(true)
+        } catch (unlikely: SecurityException) {
+
+            Log.e(TAG, "Lost location permission. Could not remove updates. $unlikely")
         }
-        stopForeground(true)
+
     }
 
     override fun onDestroy() {
@@ -116,8 +147,22 @@ class LocationService : Service(), GoogleApiClient.ConnectionCallbacks, GoogleAp
     @Throws(SecurityException::class)
     override fun onConnected(connectionHint: Bundle?) {
         if (currentLocation == null) {
-            currentLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient)
-            updateService()
+            try {
+                mFusedLocationClient.lastLocation
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful && task.result != null) {
+                            val mLocation: Location = task.result!!
+                            Log.d(SettingsLocationTracker.TAG, mLocation.altitude.toString())
+                            currentLocation = mLocation
+                            updateService()
+
+                        } else {
+                            Log.w(TAG, "Failed to get location.")
+                        }
+                    }
+            } catch (unlikely: SecurityException) {
+                Log.e(TAG, "Lost location permission.$unlikely")
+            }
         }
         startLocationUpdates()
     }

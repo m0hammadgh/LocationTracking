@@ -25,12 +25,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_main)
+        init()
 
         LocationSharePrefUtil(this).saveToSharedPref(LocationSharedPrefEnums.SyncToServerInterval, "Hello")
         Toast.makeText(this, "${LocationSharePrefUtil(this).getLocationItem(LocationSharedPrefEnums.SyncToServerInterval, "hi")}", Toast.LENGTH_LONG).show()
 
         btnStop.setOnClickListener {
-            init()
             locationTracker?.start(baseContext, this)
         }
 
