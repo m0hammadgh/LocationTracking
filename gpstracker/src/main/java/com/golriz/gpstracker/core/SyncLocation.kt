@@ -5,11 +5,11 @@ import com.golriz.gpstracker.broadCast.Events
 import com.golriz.gpstracker.broadCast.GlobalBus
 import com.golriz.gpstracker.db.repository.RoomRepository
 import com.golriz.gpstracker.model.SharePrefSettings
-import com.golriz.gpstracker.utils.SettingsLocationTracker.timeThreadName
+import com.golriz.gpstracker.utils.LocationSettings.timeThreadName
 import java.util.*
 import kotlin.concurrent.fixedRateTimer
 
-class SyncManager(private val sharePrefSettings: SharePrefSettings, val context: Context) {
+class SyncLocation(private val sharePrefSettings: SharePrefSettings, val context: Context) {
     fun startSyncProcess(): Timer {
         return fixedRateTimer(timeThreadName, false, 0L, this.sharePrefSettings.syncToServerInterval) {
             val locations = RoomRepository(context).getUnSyncedLocations(sharePrefSettings.syncItemCount)

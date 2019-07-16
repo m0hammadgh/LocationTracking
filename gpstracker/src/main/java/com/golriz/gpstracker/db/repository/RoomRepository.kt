@@ -7,9 +7,9 @@ import androidx.lifecycle.LiveData
 import androidx.room.Room
 import com.golriz.gpstracker.db.db.UserDatabase
 import com.golriz.gpstracker.db.model.UserCurrentLocation
-import com.golriz.gpstracker.utils.SettingsLocationTracker.databaseName
+import com.golriz.gpstracker.utils.LocationSettings.databaseName
 
-class RoomRepository(private val context: Context) {
+class RoomRepository(context: Context) {
 
 
     private val noteDatabase: UserDatabase = Room.databaseBuilder(context, UserDatabase::class.java, databaseName).build()

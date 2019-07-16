@@ -4,7 +4,7 @@ import android.content.Context
 import com.golriz.gpstracker.enums.LocationSharedPrefEnums.*
 import com.golriz.gpstracker.model.SharePrefSettings
 
-class StoreLocationManager(private val sharedPrefSetting: SharePrefSettings, val context: Context) {
+class LocationDbUtil(private val sharedPrefSetting: SharePrefSettings, val context: Context) {
     fun saveLocationSettings() {
 
         val prefManager = LocationSharePrefUtil(context)
