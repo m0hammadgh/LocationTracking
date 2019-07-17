@@ -49,12 +49,13 @@ class MainActivity : AppCompatActivity() {
     private fun init() {
         if (validate()) {
             locationTracker = LocationTracker(this)
-                .setNewPointInterval(edtInterval.text.toString().toLong())
-                .setOnlyGpsMode(true)
-                .setMinDistanceBetweenLocations(edtMinDistance.text.toString().toInt())
-                .setCountOfSyncItems(edtSyncCount.text.toString().toInt())
-                .setSyncToServerInterval(edtSynInterval.text.toString().toLong())
-                .setHighAccuracyMode(true)
+                    .setNewPointInterval(edtInterval.text.toString().toLong())
+                    .setOnlyGpsMode(true)
+                    .setMinDistanceBetweenLocations(edtMinDistance.text.toString().toInt())
+                    .setCountOfSyncItems(edtSyncCount.text.toString().toInt())
+                    .setSyncToServerInterval(edtSynInterval.text.toString().toLong())
+                    .setHighAccuracyMode(true)
+                    .setNotificationTitle("عنوان")
 
 
         }
@@ -63,7 +64,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun validate(): Boolean {
         return !TextUtils.isEmpty(edtInterval.text) && !TextUtils.isEmpty(edtMinDistance.text) && !TextUtils.isEmpty(
-            edtSynInterval.text
+                edtSynInterval.text
         ) && !TextUtils.isEmpty(edtSyncCount.text)
     }
 

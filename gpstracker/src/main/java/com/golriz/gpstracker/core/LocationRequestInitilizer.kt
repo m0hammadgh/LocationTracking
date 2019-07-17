@@ -3,7 +3,7 @@ package com.golriz.gpstracker.core
 import com.golriz.gpstracker.model.SharePrefSettings
 import com.google.android.gms.location.LocationRequest
 
-class LocationRequestManager {
+class LocationRequestInitilizer {
     fun createLocationRequest(sharePrefSettings: SharePrefSettings): LocationRequest {
         val locationRequest = LocationRequest()
 

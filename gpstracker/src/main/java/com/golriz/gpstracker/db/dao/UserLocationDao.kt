@@ -11,8 +11,8 @@ import com.golriz.gpstracker.db.model.UserCurrentLocation
 @Dao
 interface UserLocationDao {
 
-    @get:Query("SELECT * FROM userLocation")
-    val allLocation: LiveData<List<UserCurrentLocation>>
+    @Query("SELECT * FROM userLocation")
+    fun getAllLocations(): List<UserCurrentLocation>
 
     @Query("SELECT * FROM userLocation Where isSynced = '0'")
     fun getUnSyncedLocation(): List<UserCurrentLocation>

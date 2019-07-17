@@ -20,11 +20,7 @@ class RoomRepository(context: Context) {
     //        return noteDatabase.daoAccess().get(id);
     //    }
 
-    val tasks: LiveData<List<UserCurrentLocation>>
-        get() = noteDatabase.daoAccess().allLocation
-
-
-    fun insertTask(
+    fun insertLocation(
             latitude: Double?,
             longitude: Double?,
             isSynced: Boolean?
@@ -42,18 +38,22 @@ class RoomRepository(context: Context) {
         note.timeStamp = tsLong
 
 
-        insertTask(note)
+        insertLocation(note)
     }
 
 
     @SuppressLint("StaticFieldLeak")
-    fun insertTask(note: UserCurrentLocation) {
+    fun insertLocation(note: UserCurrentLocation) {
         object : AsyncTask<Void, Void, Void>() {
             override fun doInBackground(vararg voids: Void): Void? {
                 noteDatabase.daoAccess().insetLocation(note)
                 return null
             }
         }.execute()
+    }
+
+    fun getAllLocation(): List<UserCurrentLocation> {
+        return getAllLocations().execute().get()
     }
 
     fun getUnSyncedLocations(count: Int): List<UserCurrentLocation> {
@@ -77,12 +77,19 @@ class RoomRepository(context: Context) {
     }
 
     @SuppressLint("StaticFieldLeak")
+    private inner class getAllLocations() : AsyncTask<Void, Void, List<UserCurrentLocation>>() {
+        override fun doInBackground(vararg p0: Void?): List<UserCurrentLocation> {
+            return noteDatabase.daoAccess().getAllLocations()
+        }
+
+    }
+
+    @SuppressLint("StaticFieldLeak")
     private inner class GetUnSyncedLocations(val count: Int) : AsyncTask<Void, Void, List<UserCurrentLocation>>() {
         override fun doInBackground(vararg p0: Void?): List<UserCurrentLocation> {
             return noteDatabase.daoAccess().selectNumberOfLocations(false, count)
         }
 
     }
-
 
 }
