@@ -2,18 +2,21 @@ package com.golriz.gpstracker.core
 
 import android.content.Context
 import android.location.Location
+import android.util.Log
 import com.golriz.gpstracker.db.repository.RoomRepository
 import com.golriz.gpstracker.enums.LocationSharedPrefEnums.DistanceFromLastPoint
 import com.golriz.gpstracker.enums.LocationSharedPrefEnums.IsInsertedToDb
+import com.golriz.gpstracker.utils.LocationSettings
+import com.golriz.gpstracker.utils.LocationSettings.TAG
 import com.golriz.gpstracker.utils.LocationSharePrefUtil
-import com.golriz.gpstracker.utils.SettingsLocationTracker
 
-class CalculateDistance(
-        val context: Context,
-        var currentLocation: Location,
-        private val prefUtil: LocationSharePrefUtil?
+class DistanceCalculation(
+    val context: Context,
+    var currentLocation: Location,
+    private val prefUtil: LocationSharePrefUtil?
 ) {
     fun calculateDistance() {
+        Log.d(TAG, "Distance : ${currentLocation.latitude}*${currentLocation.longitude} ")
         if (prefUtil?.getLocationItem(IsInsertedToDb, true) == false) {
             insertToDB(currentLocation.latitude, currentLocation.longitude)
             prefUtil.saveToSharedPref(IsInsertedToDb, true)
@@ -36,7 +39,7 @@ class CalculateDistance(
 
     private fun getLastInsertedLocation(): Location {
         val lastItem = RoomRepository(context).getLasSubmittedItem()
-        val lastInsertedPoint = Location(SettingsLocationTracker.endLocation)
+        val lastInsertedPoint = Location(LocationSettings.endLocation)
         lastInsertedPoint.longitude = lastItem.longtitude!!
         lastInsertedPoint.latitude = lastItem.latitude!!
         return lastInsertedPoint

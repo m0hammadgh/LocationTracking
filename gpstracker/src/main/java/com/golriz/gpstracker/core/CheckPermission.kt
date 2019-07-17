@@ -6,9 +6,9 @@ import android.content.pm.PackageManager
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.golriz.gpstracker.utils.SettingsLocationTracker.PERMISSION_ACCESS_LOCATION_CODE
+import com.golriz.gpstracker.utils.LocationSettings.PERMISSION_ACCESS_LOCATION_CODE
 
-class PermissionChecker {
+class CheckPermission {
 
 
     //  CHECK FOR LOCATION PERMISSION

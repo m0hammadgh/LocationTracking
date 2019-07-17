@@ -1,8 +1,8 @@
-package com.golriz.gpstracker.FakeTracker
+package com.golriz.gpstracker.fakeTracker
 
 class FakePackagesConfig {
     fun getPackages(): ArrayList<String> {
-        var appNames = ArrayList<String>()
+        val appNames = ArrayList<String>()
 
         appNames.add("com.lexa.fakegps")
         appNames.add("com.blogspot.newapphorizons.fakegps")
