@@ -20,7 +20,7 @@ import java.io.Serializable
 
 
 class LocationTracker(
-    private val subscriber: AppCompatActivity
+        private val subscriber: AppCompatActivity
 
 ) : Serializable {
     private var mBothPermissionRequest: PermissionUtil.PermissionRequestObject? = null
@@ -72,14 +72,28 @@ class LocationTracker(
         return this
     }
 
+    fun setConfidence(value: Int): LocationTracker {
+        this.sharedPrefSetting.confidence = value
+        return this
+    }
+
+    fun setActivityInterval(interval: Long): LocationTracker {
+        this.sharedPrefSetting.activityRecogniseInterval = interval
+        return this
+    }
+
+    fun setIsUsingActivityRecognise(state: Boolean): LocationTracker {
+        this.sharedPrefSetting.isLocationDependsOnActivity = state
+        return this
+    }
 
     fun start(context: Context, appCompatActivity: Activity): LocationTracker? {
         if (!CheckPermission().checkPermission(appCompatActivity)) {
             Log.d(TAG, "Permission denied")
         } else if (PrivilegeChecker(context).check() != FakeMode.None) {
             Log.d(
-                TAG,
-                "Error :  To use this service YOU MUST Uninstall all Fake Gps Applications or Turn off Developer option "
+                    TAG,
+                    "Error :  To use this service YOU MUST ${PrivilegeChecker(context).check().name}  "
             )
             return null
         } else {
@@ -93,10 +107,8 @@ class LocationTracker(
     private fun startLocationService(context: Context) {
         LocationSharePrefUtil(context).saveToSharedPref(LocationSharedPrefEnums.IsServiceRunning, true)
         saveSettingsToSharedPreferences(context)
-
         val serviceIntent = Intent(context, LocationService::class.java)
         context.startService(serviceIntent)
-
         registerEventBus()
 
 
@@ -106,8 +118,8 @@ class LocationTracker(
         if (GlobalBus.bus?.isRegistered(subscriber) == false) {
             try {
                 GlobalBus.bus?.register(subscriber)
-
             } catch (e: Exception) {
+                Log.d(TAG, "Failed  registering to event Bus ")
             }
 
         }
@@ -116,8 +128,8 @@ class LocationTracker(
     private fun isServiceRunning(context: Context): Boolean {
 
         return LocationSharePrefUtil(context).getLocationItem(
-            LocationSharedPrefEnums.IsServiceRunning,
-            false
+                LocationSharedPrefEnums.IsServiceRunning,
+                false
         ) as Boolean
 
     }
@@ -127,6 +139,7 @@ class LocationTracker(
         LocationSharePrefUtil(context).saveToSharedPref(LocationSharedPrefEnums.IsServiceRunning, false)
         val serviceIntent = Intent(context, LocationService::class.java)
         context.stopService(serviceIntent)
+        GlobalBus.bus?.unregister(subscriber)
     }
 
 
@@ -139,6 +152,5 @@ class LocationTracker(
     private fun saveSettingsToSharedPreferences(context: Context) {
         LocationDbUtil(sharedPrefSetting, context).saveLocationSettings()
     }
-
 
 }

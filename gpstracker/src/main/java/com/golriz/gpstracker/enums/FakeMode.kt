@@ -1,5 +1,5 @@
 package com.golriz.gpstracker.enums
 
-enum class FakeMode(i: Int) {
-    None(0), FakeApplication(1), DeveloperMode(2)
+enum class FakeMode(name: String) {
+    None("none"), FakeApplication("remove Fake Gps Tracker App"), DeveloperMode("Turn off developer Mode")
 }

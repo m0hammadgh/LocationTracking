@@ -69,7 +69,7 @@ class LocationService : Service(),
     }
 
     private fun createLocationRequest() {
-        locationRequest = LocationRequestManager().createLocationRequest(sharePrefSettings)
+        locationRequest = LocationRequestInitilizer().createLocationRequest(sharePrefSettings)
 
     }
 

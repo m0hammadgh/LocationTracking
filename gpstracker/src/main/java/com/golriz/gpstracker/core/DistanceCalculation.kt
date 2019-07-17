@@ -34,7 +34,7 @@ class DistanceCalculation(
     }
 
     private fun insertToDB(latitude: Double, longitude: Double) {
-        RoomRepository(context).insertTask(latitude, longitude, null)
+        RoomRepository(context).insertLocation(latitude, longitude, null)
     }
 
     private fun getLastInsertedLocation(): Location {

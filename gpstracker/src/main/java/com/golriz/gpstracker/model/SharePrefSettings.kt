@@ -9,5 +9,8 @@ class SharePrefSettings {
     var syncItemCount: Int = 10
     var notificationTitle = "دستیار گلریز"
     var notificationText = "دستیار گلریز"
+    var confidence = 70
+    var activityRecogniseInterval = 20000L
+    var isLocationDependsOnActivity = false
 
 }

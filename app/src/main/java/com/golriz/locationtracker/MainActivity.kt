@@ -1,16 +1,14 @@
 package com.golriz.locationtracker
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.text.TextUtils
-import android.widget.Toast
 import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
 import com.golriz.gpstracker.broadCast.Events
 import com.golriz.gpstracker.core.LocationTracker
-import com.golriz.gpstracker.enums.LocationSharedPrefEnums
 import com.golriz.gpstracker.utils.LocationSettings.PERMISSION_ACCESS_LOCATION_CODE
-import com.golriz.gpstracker.utils.LocationSharePrefUtil
 import kotlinx.android.synthetic.main.activity_main.*
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -27,16 +25,21 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         init()
 
-        LocationSharePrefUtil(this).saveToSharedPref(LocationSharedPrefEnums.SyncToServerInterval, "Hello")
-        Toast.makeText(this, "${LocationSharePrefUtil(this).getLocationItem(LocationSharedPrefEnums.SyncToServerInterval, "hi")}", Toast.LENGTH_LONG).show()
 
         btnStop.setOnClickListener {
             locationTracker?.start(baseContext, this)
+            tvGpsMode.text = "Current Gps status : ${locationTracker?.getGpsStatus(this)}"
+
+
         }
 
         btnStart.setOnClickListener {
             stopService()
             tvGpsMode.text = ""
+        }
+
+        btnShowOnMap.setOnClickListener {
+            startActivity(Intent(this, MapsActivity::class.java))
         }
 
 
@@ -52,7 +55,10 @@ class MainActivity : AppCompatActivity() {
                     .setCountOfSyncItems(edtSyncCount.text.toString().toInt())
                     .setSyncToServerInterval(edtSynInterval.text.toString().toLong())
                     .setHighAccuracyMode(true)
-            tvGpsMode.text = "Current Gps status : ${locationTracker?.getGpsStatus(this)}"
+                    .setNotificationTitle("عنوان")
+
+
+
 
         }
 
