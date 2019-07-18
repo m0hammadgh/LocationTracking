@@ -26,6 +26,8 @@ class MainActivity : AppCompatActivity() {
         init()
 
 
+
+
         btnStop.setOnClickListener {
             locationTracker?.start(baseContext, this)
             tvGpsMode.text = "Current Gps status : ${locationTracker?.getGpsStatus(this)}"
@@ -49,15 +51,14 @@ class MainActivity : AppCompatActivity() {
     private fun init() {
         if (validate()) {
             locationTracker = LocationTracker(this)
-                    .setNewPointInterval(edtInterval.text.toString().toLong())
-                    .setOnlyGpsMode(true)
-                    .setMinDistanceBetweenLocations(edtMinDistance.text.toString().toInt())
-                    .setCountOfSyncItems(edtSyncCount.text.toString().toInt())
-                    .setSyncToServerInterval(edtSynInterval.text.toString().toLong())
-                    .setHighAccuracyMode(true)
-                    .setNotificationTitle("عنوان")
-
-
+                .setNewPointInterval(edtInterval.text.toString().toLong())
+                .setOnlyGpsMode(true)
+                .setMinDistanceBetweenLocations(edtMinDistance.text.toString().toInt())
+                .setCountOfSyncItems(edtSyncCount.text.toString().toInt())
+                .setSyncToServerInterval(edtSynInterval.text.toString().toLong())
+                .setHighAccuracyMode(true)
+                .setNotificationTitle("عنوان")
+                .setIsUsingActivityRecognise(true)
 
 
         }
@@ -66,13 +67,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun validate(): Boolean {
         return !TextUtils.isEmpty(edtInterval.text) && !TextUtils.isEmpty(edtMinDistance.text) && !TextUtils.isEmpty(
-                edtSynInterval.text
+            edtSynInterval.text
         ) && !TextUtils.isEmpty(edtSyncCount.text)
     }
 
 
     private fun stopService() {
-        locationTracker?.stopLocationService(this)
+        locationTracker?.stopServices(this)
     }
 
 
@@ -90,8 +91,8 @@ class MainActivity : AppCompatActivity() {
 
 
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    fun getMessage(fragmentActivityMessage: Events.SendLocation) {
-        val location = fragmentActivityMessage.locationList
+    fun getMessage(fragmentActivityMessage: Events.SendActivityDetect) {
+        var type = fragmentActivityMessage.userActivity
 
 
     }

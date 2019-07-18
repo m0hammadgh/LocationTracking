@@ -2,11 +2,16 @@ package com.golriz.gpstracker.core
 
 import android.annotation.SuppressLint
 import android.app.Service
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.location.Location
 import android.os.IBinder
 import android.os.Looper
 import android.util.Log
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.golriz.gpstracker.activityRecognision.Constants
 import com.golriz.gpstracker.model.SharePrefSettings
 import com.golriz.gpstracker.utils.LocationDbUtil
 import com.golriz.gpstracker.utils.LocationSharePrefUtil
@@ -24,6 +29,7 @@ class LocationService : Service(),
     private var currentLocation: Location? = null
     var sharePrefSettings = SharePrefSettings()
     private var prefUtil: LocationSharePrefUtil? = null
+    lateinit var broadcastReceiver: BroadcastReceiver
 
     private lateinit var mLocationCallback: LocationCallback
     private lateinit var mFusedLocationClient: FusedLocationProviderClient
@@ -36,6 +42,32 @@ class LocationService : Service(),
         prefUtil = LocationSharePrefUtil(baseContext)  // init Shared Pref Manager
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         initLocationCallback()
+
+        broadcastReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context, intent: Intent) {
+                if (intent.action == Constants.BROADCAST_DETECTED_ACTIVITY) {
+                    val type = intent.getIntExtra("type", -1)
+                    val confidence = intent.getIntExtra("confidence", 0)
+                    locationRequest.interval = 20000
+                    try {
+                        mFusedLocationClient.requestLocationUpdates(
+                            locationRequest,
+                            mLocationCallback, Looper.myLooper()
+                        )
+                    } catch (unlikely: SecurityException) {
+
+                        Log.d(TAG, "Lost location permission. Could not request updates. $unlikely")
+                    }
+
+                }
+            }
+        }
+
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+            broadcastReceiver,
+            IntentFilter(Constants.BROADCAST_DETECTED_ACTIVITY)
+        )
 
     }
 
@@ -74,6 +106,8 @@ class LocationService : Service(),
     }
 
     private fun startLocationUpdates() {
+//        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+
         try {
             mFusedLocationClient.requestLocationUpdates(
                 locationRequest,
@@ -93,6 +127,7 @@ class LocationService : Service(),
     }
 
     private fun stopLocationUpdates() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver)
 
         Log.d(TAG, "Removing location updates")
         try {
@@ -133,6 +168,10 @@ class LocationService : Service(),
 
         this.schedulerSync = SyncLocation(sharePrefSettings, baseContext).startSyncProcess()
 
+    }
+
+    private fun changeIntervalOnActivityChanged() {
+        //TODO
     }
 
 

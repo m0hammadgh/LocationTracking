@@ -6,6 +6,7 @@ import android.content.Intent
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.github.kayvannj.permission_utils.PermissionUtil
+import com.golriz.gpstracker.activityRecognision.BackgroundDetectedActivitiesService
 import com.golriz.gpstracker.broadCast.GlobalBus
 import com.golriz.gpstracker.enums.FakeMode
 import com.golriz.gpstracker.enums.GpsModes
@@ -20,7 +21,7 @@ import java.io.Serializable
 
 
 class LocationTracker(
-        private val subscriber: AppCompatActivity
+    private val subscriber: AppCompatActivity
 
 ) : Serializable {
     private var mBothPermissionRequest: PermissionUtil.PermissionRequestObject? = null
@@ -87,21 +88,29 @@ class LocationTracker(
         return this
     }
 
+
     fun start(context: Context, appCompatActivity: Activity): LocationTracker? {
         if (!CheckPermission().checkPermission(appCompatActivity)) {
             Log.d(TAG, "Permission denied")
         } else if (PrivilegeChecker(context).check() != FakeMode.None) {
             Log.d(
-                    TAG,
-                    "Error :  To use this service YOU MUST ${PrivilegeChecker(context).check().name}  "
+                TAG,
+                "Error :  To use this service YOU MUST ${PrivilegeChecker(context).check().name}  "
             )
             return null
         } else {
             if (!isServiceRunning(context)) {
-                startLocationService(context)
+                startServices(context)
             }
         }
         return this
+    }
+
+    private fun startServices(context: Context) {
+        registerEventBus()
+        startLocationService(context)
+        startActivityDetectionService(context)
+
     }
 
     private fun startLocationService(context: Context) {
@@ -109,8 +118,15 @@ class LocationTracker(
         saveSettingsToSharedPreferences(context)
         val serviceIntent = Intent(context, LocationService::class.java)
         context.startService(serviceIntent)
-        registerEventBus()
 
+    }
+
+
+    private fun startActivityDetectionService(context: Context) {
+        if (sharedPrefSetting.isLocationDependsOnActivity) {
+            val serviceActivityRecognition = Intent(context, BackgroundDetectedActivitiesService::class.java)
+            context.startService(serviceActivityRecognition)
+        }
 
     }
 
@@ -128,18 +144,30 @@ class LocationTracker(
     private fun isServiceRunning(context: Context): Boolean {
 
         return LocationSharePrefUtil(context).getLocationItem(
-                LocationSharedPrefEnums.IsServiceRunning,
-                false
+            LocationSharedPrefEnums.IsServiceRunning,
+            false
         ) as Boolean
 
     }
 
 
-    fun stopLocationService(context: Context) {
-        LocationSharePrefUtil(context).saveToSharedPref(LocationSharedPrefEnums.IsServiceRunning, false)
+    fun stopServices(context: Context) {
+        stopLocationService(context)
+        stopActivityDetectionService(context)
+
+    }
+
+    private fun stopLocationService(context: Context) {
+        setRunningServiceStatus(context, false)
         val serviceIntent = Intent(context, LocationService::class.java)
         context.stopService(serviceIntent)
         GlobalBus.bus?.unregister(subscriber)
+    }
+
+
+    private fun stopActivityDetectionService(context: Context) {
+        val serviceActivityDetection = Intent(context, BackgroundDetectedActivitiesService::class.java)
+        context.stopService(serviceActivityDetection)
     }
 
 
@@ -151,6 +179,11 @@ class LocationTracker(
 
     private fun saveSettingsToSharedPreferences(context: Context) {
         LocationDbUtil(sharedPrefSetting, context).saveLocationSettings()
+    }
+
+    private fun setRunningServiceStatus(context: Context, status: Boolean) {
+        LocationSharePrefUtil(context).saveToSharedPref(LocationSharedPrefEnums.IsServiceRunning, status)
+
     }
 
 }
