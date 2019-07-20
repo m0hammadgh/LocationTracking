@@ -11,7 +11,11 @@ import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.golriz.gpstracker.activityRecognision.Constants
+import com.golriz.gpstracker.activityRecognision.ActivitySettings
+import com.golriz.gpstracker.activityRecognision.ActivitySettings.drivingInterval
+import com.golriz.gpstracker.activityRecognision.ActivitySettings.stillInterval
+import com.golriz.gpstracker.activityRecognision.ActivitySettings.walkingInterval
+import com.golriz.gpstracker.enums.LocationSharedPrefEnums.Confidence
 import com.golriz.gpstracker.model.SharePrefSettings
 import com.golriz.gpstracker.utils.LocationDbUtil
 import com.golriz.gpstracker.utils.LocationSharePrefUtil
@@ -45,19 +49,11 @@ class LocationService : Service(),
 
         broadcastReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
-                if (intent.action == Constants.BROADCAST_DETECTED_ACTIVITY) {
+                if (intent.action == ActivitySettings.BROADCAST_DETECTED_ACTIVITY) {
                     val type = intent.getIntExtra("type", -1)
                     val confidence = intent.getIntExtra("confidence", 0)
-                    locationRequest.interval = 20000
-                    try {
-                        mFusedLocationClient.requestLocationUpdates(
-                            locationRequest,
-                            mLocationCallback, Looper.myLooper()
-                        )
-                    } catch (unlikely: SecurityException) {
+                    changeIntervalOnActivityChanged(type, confidence)
 
-                        Log.d(TAG, "Lost location permission. Could not request updates. $unlikely")
-                    }
 
                 }
             }
@@ -66,7 +62,7 @@ class LocationService : Service(),
 
         LocalBroadcastManager.getInstance(this).registerReceiver(
             broadcastReceiver,
-            IntentFilter(Constants.BROADCAST_DETECTED_ACTIVITY)
+            IntentFilter(ActivitySettings.BROADCAST_DETECTED_ACTIVITY)
         )
 
     }
@@ -170,8 +166,44 @@ class LocationService : Service(),
 
     }
 
-    private fun changeIntervalOnActivityChanged() {
-        //TODO
+    private fun changeIntervalOnActivityChanged(type: Int, confidence: Int) {
+
+        when (type) {
+            DetectedActivity.IN_VEHICLE -> {
+                if (checkDesiredConfidence(confidence)) {
+                    updateInterval(drivingInterval)
+                }
+            }
+            DetectedActivity.STILL -> {
+                if (checkDesiredConfidence(confidence)) {
+                    updateInterval(stillInterval)
+                }
+            }
+            DetectedActivity.WALKING -> {
+                if (checkDesiredConfidence(confidence)) {
+                    updateInterval(walkingInterval)
+                }
+            }
+        }
+
+
+    }
+
+    private fun checkDesiredConfidence(confidence: Int): Boolean {
+        return confidence > (prefUtil?.getLocationItem(Confidence, 70) as Int)
+    }
+
+    private fun updateInterval(interval: Long) {
+        locationRequest.interval = interval
+        try {
+            mFusedLocationClient.requestLocationUpdates(
+                locationRequest,
+                mLocationCallback, Looper.myLooper()
+            )
+        } catch (exception: SecurityException) {
+
+            Log.d(TAG, "Lost location permission. Could not request updates. $exception")
+        }
     }
 
 

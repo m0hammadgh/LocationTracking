@@ -59,6 +59,8 @@ class MainActivity : AppCompatActivity() {
                 .setHighAccuracyMode(true)
                 .setNotificationTitle("عنوان")
                 .setIsUsingActivityRecognise(true)
+                .setConfidence(83)
+                .setActivityInterval(50000)
 
 
         }

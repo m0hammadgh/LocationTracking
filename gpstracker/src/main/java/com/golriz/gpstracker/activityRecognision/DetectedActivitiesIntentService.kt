@@ -19,7 +19,7 @@ class DetectedActivitiesIntentService : IntentService(TAG) {
     }
 
     private fun broadcastActivity(activity: DetectedActivity) {
-        val intent = Intent(Constants.BROADCAST_DETECTED_ACTIVITY)
+        val intent = Intent(ActivitySettings.BROADCAST_DETECTED_ACTIVITY)
         intent.putExtra("type", activity.type)
         intent.putExtra("confidence", activity.confidence)
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent)

@@ -14,6 +14,9 @@ class LocationDbUtil(private val sharedPrefSetting: SharePrefSettings, val conte
         prefManager.saveToSharedPref(DistanceFromLastPoint, sharedPrefSetting.distanceFromLastPoint)
         prefManager.saveToSharedPref(SyncItemCount, sharedPrefSetting.syncItemCount)
         prefManager.saveToSharedPref(SyncToServerInterval, sharedPrefSetting.syncToServerInterval)
+        prefManager.saveToSharedPref(Confidence, sharedPrefSetting.confidence)
+        prefManager.saveToSharedPref(ActivityInterval, sharedPrefSetting.activityRecogniseInterval)
+        prefManager.saveToSharedPref(IsUsingActivityRecognition, sharedPrefSetting.isLocationDependsOnActivity)
     }
 
 
@@ -25,6 +28,11 @@ class LocationDbUtil(private val sharedPrefSetting: SharePrefSettings, val conte
         sharedPrefSetting.distanceFromLastPoint = prefManager.getLocationItem(DistanceFromLastPoint, 50) as Int
         sharedPrefSetting.isGpsMode = prefManager.getLocationItem(IsGpsMode, true) as Boolean
         sharedPrefSetting.isHighAccuracyMode = prefManager.getLocationItem(IsHighAccuracyMode, true) as Boolean
+        sharedPrefSetting.isLocationDependsOnActivity =
+            prefManager.getLocationItem(IsUsingActivityRecognition, false) as Boolean
+        sharedPrefSetting.activityRecogniseInterval = prefManager.getLocationItem(ActivityInterval, 20000L) as Long
+        sharedPrefSetting.confidence = prefManager.getLocationItem(Confidence, 70) as Int
+
         return sharedPrefSetting
 
 

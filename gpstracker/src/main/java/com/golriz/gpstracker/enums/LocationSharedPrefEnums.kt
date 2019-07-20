@@ -11,7 +11,10 @@ enum class LocationSharedPrefEnums(name: String) {
     NotificationTitle("NotificationTitle"),
     NotificationText("NotificationText"),
     IsServiceRunning("IsServiceRunning"),
-    IsInsertedToDb("IsInsertedToDb")
+    IsInsertedToDb("IsInsertedToDb"),
+    Confidence("Confidence"),
+    ActivityInterval("ActivityInterval"),
+    IsUsingActivityRecognition("ActivityRecognitionUsed")
 
 
 }

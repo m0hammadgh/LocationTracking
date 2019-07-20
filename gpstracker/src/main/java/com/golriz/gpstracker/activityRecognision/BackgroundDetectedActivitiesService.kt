@@ -40,15 +40,10 @@ class BackgroundDetectedActivitiesService : Service() {
 
     private fun requestActivityUpdatesButtonHandler() {
         val task = mActivityRecognitionClient!!.requestActivityUpdates(
-                Constants.DETECTION_INTERVAL_IN_MILLISECONDS,
+                ActivitySettings.DETECTION_INTERVAL_IN_MILLISECONDS,
                 mPendingIntent)
 
-        task.addOnSuccessListener {
-            Toast.makeText(applicationContext,
-                    "Successfully requested activity updates",
-                    Toast.LENGTH_SHORT)
-                    .show()
-        }
+
 
         task.addOnFailureListener {
             Toast.makeText(applicationContext,
